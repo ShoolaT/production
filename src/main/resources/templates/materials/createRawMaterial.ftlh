@@ -1,15 +1,13 @@
-<!-- products/createProduct.html -->
-
 <#import "../layout.ftlh" as main>
 
 <@main.layout>
     <div class="container mt-5">
-        <h2>Create Product</h2>
+        <h2>Create Raw material</h2>
 
-        <form action="/products/create" method="post" class="needs-validation">
+        <form id="createRawMaterialForm" action="/materials/create" method="post" class="needs-validation">
             <div class="form-group">
-                <label for="productName">Product Name:</label>
-                <input type="text" class="form-control" id="productName" name="name" required>
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
             </div>
 
             <div class="form-group">
@@ -27,14 +25,17 @@
             </div>
 
             <div class="form-group">
-                <label for="amount">Amount:</label>
+                <label for="amount">Amount (for 1):</label>
                 <input type="number" class="form-control" id="amount" name="amount" readonly value="0" required>
             </div>
 
+
             <div class="mt-2">
                 <button type="submit" class="btn btn-primary">Create</button>
-                <a href="/products/all" class="btn btn-secondary mx-3">Cancel</a>
+                <a href="/materials/all" class="btn btn-secondary mx-3">Cancel</a>
             </div>
         </form>
     </div>
+
+
 </@main.layout>

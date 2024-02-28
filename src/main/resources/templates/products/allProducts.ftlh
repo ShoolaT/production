@@ -1,5 +1,3 @@
-<!-- products/allProducts.html -->
-
 <#import "../layout.ftlh" as main>
 
 <@main.layout>
@@ -12,7 +10,7 @@
             <th scope="col">Unit of Measurement</th>
             <th scope="col">Quantity</th>
             <th scope="col">Amount</th>
-<#--            <th scope="col">Actions</th>-->
+            <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -22,10 +20,10 @@
                 <td>${product.unitsOfMeasurement.name}</td>
                 <td>${product.quantity}</td>
                 <td>${product.amount}</td>
-<#--                <td>-->
-<#--                    <a href="/products/${product.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>-->
-<#--                    <a href="/products/${product.id}/delete" class="btn btn-outline-danger mt-auto">Delete</a>-->
-<#--                </td>-->
+                <td>
+                    <a href="/products/${product.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
+                    <button class="btn btn-outline-danger" onclick="confirmDelete(${product.id})">Delete</button>
+                </td>
             </tr>
         </#list>
         </tbody>
@@ -34,4 +32,12 @@
     <div class="mt-3">
         <a href="/products/create" class="btn btn-success">Add Product</a>
     </div>
+    <script>
+        function confirmDelete(productId) {
+            var confirmation = confirm("Are you sure you want to delete this product?");
+            if (confirmation) {
+                window.location.href = '/products/' + productId + '/delete/confirmed';
+            }
+        }
+    </script>
 </@main.layout>

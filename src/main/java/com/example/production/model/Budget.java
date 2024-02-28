@@ -10,15 +10,11 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
-public class FinishedProduct {
+public class Budget {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "unit_of_measurement_id", referencedColumnName = "id")
-    private UnitsOfMeasurement unitsOfMeasurement;
-    private float quantity;
     private float amount;
+    private float percent;
 }
 

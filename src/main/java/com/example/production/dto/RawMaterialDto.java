@@ -14,7 +14,7 @@ public class RawMaterialDto {
     private Long id;
     private String name;
     private UnitOfMeasurementDto unitsOfMeasurement;
-    private double quantity;
-    private double amount;
+    private float quantity;
+    private float amount;
 }
 

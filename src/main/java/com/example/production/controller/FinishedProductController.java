@@ -12,7 +12,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 @RequestMapping("/products")
@@ -41,12 +44,6 @@ public class FinishedProductController {
         model.addAttribute("measurements", measurementService.getAllMeasurements());
         return "products/allProducts";
     }
-    @GetMapping("/{id}")
-    public String getProductById(@PathVariable Long id, Model model) {
-        FinishedProductDto product = productService.getFinishedProductById(id);
-        model.addAttribute("product", product);
-        return "products/getProduct";
-    }
     @PostMapping("/{id}/edit")
     public String updateProduct(@PathVariable Long id, @ModelAttribute FinishedProductDto productDto) {
         productDto.setId(id);
@@ -59,13 +56,23 @@ public class FinishedProductController {
         if (productDto != null) {
             model.addAttribute("productDto", productDto);
             model.addAttribute("measurements",measurementService.getAllMeasurements());
+
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+            symbols.setDecimalSeparator('.');
+            DecimalFormat df = new DecimalFormat("#0.00", symbols);
+
+            String formattedQuantity = df.format(productDto.getQuantity());
+            model.addAttribute("formattedQuantity", formattedQuantity);
+
+            String formattedAmount = df.format(productDto.getAmount());
+            model.addAttribute("formattedAmount", formattedAmount);
         } else {
             new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return "products/updateProduct";
     }
 
-    @GetMapping("/{id}/delete")
+    @GetMapping("/{id}/delete/confirmed")
     public String deleteProduct(@PathVariable Long id) {
         productService.deleteFinishedProduct(id);
         return "redirect:/products/all";

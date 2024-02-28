@@ -10,11 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FinishedProductDto {
+public class BudgetDto {
     private Long id;
-    private String name;
-    private UnitOfMeasurementDto unitsOfMeasurement;
-    private float quantity;
     private float amount;
+    private float percent;
 }
-

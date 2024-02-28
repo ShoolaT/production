@@ -2,19 +2,19 @@
 
 <@main.layout>
     <div class="container mt-5">
-        <h2>Update Product</h2>
+        <h2>Update Raw Material</h2>
 
-        <form action="/products/${productDto.id}/edit" method="post" class="needs-validation" novalidate>
+        <form action="/materials/${materialDto.id}/edit" method="post" class="needs-validation" novalidate>
             <div class="form-group">
-                <label for="productName">Product Name:</label>
-                <input type="text" class="form-control" id="productName" name="name" value="${productDto.name}" required>
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" value="${materialDto.name}" required>
             </div>
 
             <div class="form-group">
                 <label for="measurementId">Unit of Measurement:</label>
                 <select class="form-control" id="measurementId" name="unitsOfMeasurement.id" required>
                     <#list measurements as measurement>
-                        <option value="${measurement.id}"<#if measurement.id == productDto.unitsOfMeasurement.id> selected</#if>>${measurement.name}</option>
+                        <option value="${measurement.id}"<#if measurement.id == materialDto.unitsOfMeasurement.id> selected</#if>>${measurement.name}</option>
                     </#list>
                 </select>
             </div>
@@ -29,9 +29,10 @@
                 <input type="text" class="form-control" id="amount" name="amount" value="${formattedAmount}" readonly required>
             </div>
 
+
             <div class="mt-2">
                 <button type="submit" class="btn btn-primary">Update</button>
-                <a href="/products/all" class="btn btn-secondary mx-3">Cancel</a>
+                <a href="/materials/all" class="btn btn-secondary mx-3">Cancel</a>
             </div>
         </form>
     </div>

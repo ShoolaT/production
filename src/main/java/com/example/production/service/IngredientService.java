@@ -23,6 +23,7 @@ public class IngredientService {
         var list = ingredientRepository.findAll(PageRequest.of(page, size, Sort.by(sort)));
         return toPage(list.getContent(), PageRequest.of(list.getNumber(), list.getSize(), list.getSort()));
     }
+
     public Page<IngredientDto> getIngredientsByProductId(Long productId, int page, int size, String sort) {
         // Assuming you have a method in your repository to fetch ingredients by product ID
         var list = ingredientRepository.findByProductId(productId, PageRequest.of(page, size, Sort.by(sort)));
@@ -44,6 +45,7 @@ public class IngredientService {
         List<IngredientDto> subList = list.subList(startIndex, endIndex);
         return new PageImpl<>(subList, pageable, list.size());
     }
+
     public List<IngredientDto> getAllIngredients() {
         List<Ingredient> ingredients = ingredientRepository.findAll();
         return ingredients.stream()
@@ -55,6 +57,7 @@ public class IngredientService {
         var ingredient = ingredientRepository.findById(id).get();
         return convertToDto(ingredient);
     }
+
     public Optional<Ingredient> getIngredient(Long id) {
         return Optional.of(ingredientRepository.findById(id).get());
     }
@@ -64,15 +67,17 @@ public class IngredientService {
         ingredient = ingredientRepository.save(ingredient);
         return convertToDto(ingredient);
     }
+
     public IngredientDto updateIngredient(IngredientDto ingredientDto) {
         boolean existingIngredient = ingredientRepository.existsById(ingredientDto.getId());
-        if(!existingIngredient){
+        if (!existingIngredient) {
             throw new NoSuchElementException("Ingredient with id " + ingredientDto.getId() + " not found.");
         }
         Ingredient ingredient = convertToEntity(ingredientDto);
         ingredient = ingredientRepository.save(ingredient);
         return convertToDto(ingredient);
     }
+
     public void deleteIngredient(Long id) {
         ingredientRepository.deleteById(id);
     }
@@ -98,37 +103,31 @@ public class IngredientService {
                 .quantity(ingredientDto.getQuantity())
                 .build();
     }
+
     public boolean existsIngredientForProduct(Long productId, Long materialId) {
         return ingredientRepository.existsByProduct_IdAndRawMaterial_Id(productId, materialId);
     }
+
     public Long getExistingIngredientId(Long productId, Long rawMaterialId) {
         return ingredientRepository.findIdByProductIdAndRawMaterialId(productId, rawMaterialId);
     }
-//    public List<IngredientDto> getUnusedIngredientsForProduct(Long productId) {
-//        // Получить список всех ингредиентов
-//        List<Ingredient> allIngredients = ingredientRepository.findAll();
-//
-//        // Получить список ингредиентов для указанного продукта
-//        List<IngredientDto> ingredientsForProduct = getIngredientsForProduct(productId);
-//
-//        // Из списка всех ингредиентов исключить те, которые уже использованы для указанного продукта
-//        List<IngredientDto> unusedIngredients = new ArrayList<>();
-//        for (Ingredient ingredient : allIngredients) {
-//            boolean isUsed = ingredientsForProduct.stream()
-//                    .anyMatch(ing -> ing.getId().equals(ingredient.getId()));
-//            if (!isUsed) {
-//                unusedIngredients.add(convertToDto(ingredient));
-//            }
-//        }
-//
-//        return unusedIngredients;
-//    }
-public List<IngredientDto> getIngredientsForProduct(Long productId) {
-    List<Ingredient> ingredients = ingredientRepository.findByProduct_Id(productId);
-    return ingredients.stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-}
+
+    public IngredientDto getIngredientByProductAndRawMaterial(Long productId, Long rawMaterialId) {
+        Optional<Ingredient> ingredient = ingredientRepository.findByProductIdAndRawMaterialId(productId, rawMaterialId);
+        if (ingredient.isPresent()) {
+            return convertToDto(ingredient.get());
+        } else {
+            throw new NoSuchElementException("Ingredient with productId " + productId + " and rawMaterialId " + rawMaterialId + " not found.");
+        }
+    }
+
+    public List<IngredientDto> getIngredientsForProduct(Long productId) {
+        List<Ingredient> ingredients = ingredientRepository.findByProduct_Id(productId);
+        return ingredients.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public List<IngredientDto> getUnusedIngredientsForProduct(Long productId) {
         List<IngredientDto> allIngredients = getAllIngredients();
         List<IngredientDto> ingredientsForProduct = getIngredientsForProduct(productId);
@@ -139,19 +138,6 @@ public List<IngredientDto> getIngredientsForProduct(Long productId) {
                         .noneMatch(ing -> ing.getId().equals(ingredient.getId())))
                 .collect(Collectors.toList());
     }
-
-
-//    public List<IngredientDto> getIngredientsForProduct(Long productId) {
-//        // Получить список ингредиентов для указанного продукта
-//        List<Ingredient> ingredients = ingredientRepository.findByProduct_Id(productId);
-//
-//        // Преобразовать список ингредиентов в список DTO
-//        return ingredients.stream()
-//                .map(this::convertToDto)
-//                .collect(Collectors.toList());
-//    }
-
-
 
 
 }

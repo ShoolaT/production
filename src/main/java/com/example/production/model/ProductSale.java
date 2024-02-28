@@ -2,6 +2,7 @@ package com.example.production.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -19,8 +20,10 @@ public class ProductSale {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private FinishedProduct product;
-    private double quantity;
-    private double amount;
+    private float quantity;
+    private float cost;
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "employee_id", referencedColumnName = "id")

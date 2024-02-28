@@ -18,7 +18,7 @@ public class EmployeeDto {
     private String fullName;
     private PositionDto position;
     @NotNull
-    private double salary;
+    private float salary;
     @NotBlank
     private String address;
     private String phoneNumber;

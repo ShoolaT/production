@@ -19,7 +19,7 @@ public class Employee {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "position_id", referencedColumnName = "id")
     private Position position;
-    private double salary;
+    private float salary;
     private String address;
     private String phoneNumber;
 }

@@ -4,16 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class IngredientDto {
+@NoArgsConstructor
+public class ProductSaleDto {
     private Long id;
     private FinishedProductDto product;
-    private RawMaterialDto rawMaterial;
     private float quantity;
+    private float cost;
+    private EmployeeDto employee;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date date;
 }
 

@@ -7,9 +7,6 @@
 
         <form id="createIngredientForm" action="/ingredients/create" method="post" class="needs-validation">
             <div class="form-group">
-                <div id="alertMessage" class="alert alert-warning" role="alert" style="display: none;">
-                    Ingredient already exists for this product. Please choose a different combination.
-                </div>
                 <label for="productId">Product:</label>
                 <select class="form-control" id="productId" name="product.id" required>
                     <#list products as product>

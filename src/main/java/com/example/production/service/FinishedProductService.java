@@ -1,12 +1,14 @@
 package com.example.production.service;
 
 import com.example.production.dto.FinishedProductDto;
+import com.example.production.model.Budget;
 import com.example.production.model.FinishedProduct;
 import com.example.production.model.UnitsOfMeasurement;
 import com.example.production.repository.FinishedProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -102,5 +104,35 @@ public class FinishedProductService {
                 .quantity(finishedProductDto.getQuantity())
                 .amount(finishedProductDto.getAmount())
                 .build();
+    }
+    @Transactional
+    public boolean checkQuantity(Long id, float sum) {
+        Optional<FinishedProduct> product = finishedProductRepository.findById(id);
+        if(product.isPresent()){
+            return product.get().getQuantity() >= sum;
+        }
+        return false;
+    }
+    public float costForFinishedProduct(Long id){
+        Optional<FinishedProduct> finishedProduct = finishedProductRepository.findById(id);
+        if(finishedProduct.isPresent()) {
+            FinishedProduct finishedProduct1 = finishedProduct.get();
+            return finishedProduct1.getAmount() / finishedProduct1.getQuantity();
+        }
+        return 0;
+    }
+    public void decreaseFinishedProduct( Long id, float quantity, float cost) {
+        Optional<FinishedProduct> optFinishedProduct = finishedProductRepository.findById(id);
+        if(optFinishedProduct.isPresent()) {
+            FinishedProduct finishedProduct = optFinishedProduct.get();
+            finishedProduct.setQuantity(finishedProduct.getQuantity() - quantity);
+
+            float amountToDeduct = quantity * cost;
+            finishedProduct.setAmount(finishedProduct.getAmount() - amountToDeduct);
+
+            finishedProductRepository.save(finishedProduct);
+        } else {
+            throw new NoSuchElementException("Finished product with id " + id + " not found.");
+        }
     }
 }

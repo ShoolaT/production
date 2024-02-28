@@ -9,6 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,15 @@ public class RawMaterialService {
         rawMaterial = rawMaterialRepository.save(rawMaterial);
         return convertToDto(rawMaterial);
     }
+    public RawMaterialDto updateMaterial(RawMaterialDto rawMaterialDto) {
+        boolean existingMaterial = rawMaterialRepository.existsById(rawMaterialDto.getId());
+        if(!existingMaterial){
+            throw new NoSuchElementException("Raw material with name " + rawMaterialDto.getName() + " not found.");
+        }
+        RawMaterial material = convertToEntity(rawMaterialDto);
+        material = rawMaterialRepository.save(material);
+        return convertToDto(material);
+    }
 
     public void deleteMaterial(Long id) {
         rawMaterialRepository.deleteById(id);
@@ -82,6 +92,18 @@ public class RawMaterialService {
                 .quantity(rawMaterialDto.getQuantity())
                 .amount(rawMaterialDto.getAmount())
                 .build();
+    }
+    public void increaseQuantityAndAmount(Long rawMaterialId, float purchasedQuantity, float requiredAmount) {
+        RawMaterial rawMaterial = rawMaterialRepository.findById(rawMaterialId)
+                .orElseThrow(() -> new NoSuchElementException("Raw material not found with id: " + rawMaterialId));
+
+        float newQuantity = rawMaterial.getQuantity() + purchasedQuantity;
+        rawMaterial.setQuantity(newQuantity);
+
+        float newAmount = rawMaterial.getAmount() + requiredAmount;
+        rawMaterial.setAmount(newAmount);
+
+        rawMaterialRepository.save(rawMaterial);
     }
 
 }

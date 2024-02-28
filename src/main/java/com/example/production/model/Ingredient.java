@@ -20,6 +20,6 @@ public class Ingredient {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "raw_material_id", referencedColumnName = "id")
     private RawMaterial rawMaterial;
-    private double quantity;
+    private float quantity;
 }
 

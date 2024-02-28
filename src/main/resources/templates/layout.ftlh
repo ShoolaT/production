@@ -45,6 +45,21 @@
                     <a class="nav-link" href="/products/all">Products<span class="sr-only"></span></a>
                 </li>
             </ul>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/materials/all">Raw materials<span class="sr-only"></span></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/materialPurchases/all">Raw material purchases<span class="sr-only"></span></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/productSales/all">Product sales<span class="sr-only"></span></a>
+                </li>
+            </ul>
             <#--            <ul class="navbar-nav mr-auto">-->
             <#--                <li class="nav-item active">-->
             <#--                    <a class="nav-link" href="/projects/all">Projects<span class="sr-only"></span></a>-->

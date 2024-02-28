@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IngredientRepository extends JpaRepository<Ingredient, Long>{
@@ -17,4 +18,7 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long>{
     @Query("SELECT i.id FROM Ingredient i WHERE i.product.id = :productId AND i.rawMaterial.id = :rawMaterialId")
     Long findIdByProductIdAndRawMaterialId(@Param("productId") Long productId, @Param("rawMaterialId") Long rawMaterialId);
     List<Ingredient> findByProduct_Id(Long productId);
+    @Query("SELECT i FROM Ingredient i WHERE i.product.id = :productId AND i.rawMaterial.id = :rawMaterialId")
+    Optional<Ingredient> findByProductIdAndRawMaterialId(@Param("productId") Long productId, @Param("rawMaterialId") Long rawMaterialId);
+
 }

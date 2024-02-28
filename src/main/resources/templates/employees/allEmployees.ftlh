@@ -42,7 +42,9 @@
                 </#list>
                 <td>
                     <a href="/employees/${employee.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
-                    <a href="/employees/${employee.id}/delete" class="btn btn-outline-danger mt-auto">Delete</a>
+<#--                    <a href="/employees/${employee.id}/delete" class="btn btn-outline-danger mt-auto">Delete</a>-->
+                    <button class="btn btn-outline-danger" onclick="confirmDelete(${employee.id})">Delete</button>
+
                 </td>
             </tr>
         </#list>
@@ -52,4 +54,12 @@
     <div class="mt-3">
         <a href="/employees/create" class="btn btn-success">Add Employee</a>
     </div>
+    <script>
+        function confirmDelete(employeeId) {
+            var confirmation = confirm("Are you sure you want to delete this employee?");
+            if (confirmation) {
+                window.location.href = '/employees/' + employeeId + '/delete/confirmed';
+            }
+        }
+    </script>
 </@main.layout>
