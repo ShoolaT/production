@@ -113,6 +113,13 @@ public class FinishedProductService {
         }
         return false;
     }
+    public boolean check(Long id, float sum) {
+        Optional<FinishedProduct> product = finishedProductRepository.findById(id);
+        if(product.isPresent()){
+            return product.get().getQuantity() >= sum;
+        }
+        return false;
+    }
     public float costForFinishedProduct(Long id){
         Optional<FinishedProduct> finishedProduct = finishedProductRepository.findById(id);
         if(finishedProduct.isPresent()) {
@@ -135,4 +142,30 @@ public class FinishedProductService {
             throw new NoSuchElementException("Finished product with id " + id + " not found.");
         }
     }
+    public void increaseQuantity(Long productId, float quantityToAdd) {
+        FinishedProduct finishedProduct = finishedProductRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Finished product not found with id: " + productId));
+
+        float newQuantity = finishedProduct.getQuantity() + quantityToAdd;
+
+        finishedProduct.setQuantity(newQuantity);
+
+        finishedProductRepository.save(finishedProduct);
+    }
+    public void updateAmount(Long productId, float totalCostOfRawMaterials) {
+        Optional<FinishedProduct> productOptional = finishedProductRepository.findById(productId);
+        if (productOptional.isPresent()) {
+            FinishedProduct product = productOptional.get();
+
+            float newAmount = product.getAmount() + totalCostOfRawMaterials;
+            product.setAmount(newAmount);
+
+            finishedProductRepository.save(product);
+        } else {
+            throw new NoSuchElementException("Finished product with id " + productId + " not found.");
+        }
+    }
+
+
+
 }

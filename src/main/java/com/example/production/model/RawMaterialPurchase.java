@@ -20,9 +20,7 @@ public class RawMaterialPurchase {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "raw_material_id", referencedColumnName = "id")
     private RawMaterial rawMaterial;
-//    @Convert(converter = DoubleToStringConverter.class)
     private float quantity;
-//    @Convert(converter = DoubleToStringConverter.class)
     private float amount;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "employee_id", referencedColumnName = "id")

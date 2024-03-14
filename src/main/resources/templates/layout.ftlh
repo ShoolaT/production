@@ -60,6 +60,11 @@
                     <a class="nav-link" href="/productSales/all">Product sales<span class="sr-only"></span></a>
                 </li>
             </ul>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/productProductions/all">Product productions<span class="sr-only"></span></a>
+                </li>
+            </ul>
             <#--            <ul class="navbar-nav mr-auto">-->
             <#--                <li class="nav-item active">-->
             <#--                    <a class="nav-link" href="/projects/all">Projects<span class="sr-only"></span></a>-->

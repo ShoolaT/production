@@ -32,7 +32,7 @@ create table product_production
     id          bigserial not null,
     employee_id bigint,
     product_id  bigint,
-    date        timestamp(6),
+    date        DATE,
     quantity    float(53) not null,
     primary key (id)
 );

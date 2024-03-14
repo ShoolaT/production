@@ -25,8 +25,7 @@ public class IngredientService {
     }
 
     public Page<IngredientDto> getIngredientsByProductId(Long productId, int page, int size, String sort) {
-        // Assuming you have a method in your repository to fetch ingredients by product ID
-        var list = ingredientRepository.findByProductId(productId, PageRequest.of(page, size, Sort.by(sort)));
+         var list = ingredientRepository.findByProductId(productId, PageRequest.of(page, size, Sort.by(sort)));
         return toPage(list.getContent(), PageRequest.of(list.getNumber(), list.getSize(), list.getSort()));
     }
 
@@ -125,17 +124,6 @@ public class IngredientService {
         List<Ingredient> ingredients = ingredientRepository.findByProduct_Id(productId);
         return ingredients.stream()
                 .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<IngredientDto> getUnusedIngredientsForProduct(Long productId) {
-        List<IngredientDto> allIngredients = getAllIngredients();
-        List<IngredientDto> ingredientsForProduct = getIngredientsForProduct(productId);
-
-        // Из списка всех ингредиентов исключить те, которые уже использованы для указанного продукта
-        return allIngredients.stream()
-                .filter(ingredient -> ingredientsForProduct.stream()
-                        .noneMatch(ing -> ing.getId().equals(ingredient.getId())))
                 .collect(Collectors.toList());
     }
 

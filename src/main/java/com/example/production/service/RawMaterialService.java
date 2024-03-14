@@ -38,6 +38,7 @@ public class RawMaterialService {
         List<RawMaterialDto> subList = list.subList(startIndex, endIndex);
         return new PageImpl<>(subList, pageable, list.size());
     }
+
     public List<RawMaterialDto> getAllMaterials() {
         List<RawMaterial> materials = rawMaterialRepository.findAll();
         return materials.stream()
@@ -49,6 +50,7 @@ public class RawMaterialService {
         var rawMaterial = rawMaterialRepository.findById(id).get();
         return convertToDto(rawMaterial);
     }
+
     public Optional<RawMaterial> getMaterial(Long id) {
         return Optional.of(rawMaterialRepository.findById(id).get());
     }
@@ -58,9 +60,10 @@ public class RawMaterialService {
         rawMaterial = rawMaterialRepository.save(rawMaterial);
         return convertToDto(rawMaterial);
     }
+
     public RawMaterialDto updateMaterial(RawMaterialDto rawMaterialDto) {
         boolean existingMaterial = rawMaterialRepository.existsById(rawMaterialDto.getId());
-        if(!existingMaterial){
+        if (!existingMaterial) {
             throw new NoSuchElementException("Raw material with name " + rawMaterialDto.getName() + " not found.");
         }
         RawMaterial material = convertToEntity(rawMaterialDto);
@@ -70,6 +73,27 @@ public class RawMaterialService {
 
     public void deleteMaterial(Long id) {
         rawMaterialRepository.deleteById(id);
+    }
+
+    public boolean checkQuantity(Long rawMaterialId, float requiredQuantity) {
+        Optional<RawMaterial> rawMaterialOptional = rawMaterialRepository.findById(rawMaterialId);
+        if (rawMaterialOptional.isPresent()) {
+            RawMaterial rawMaterial = rawMaterialOptional.get();
+            return rawMaterial.getQuantity() >= requiredQuantity;
+        } else {
+            throw new NoSuchElementException("Raw material with id " + rawMaterialId + " not found.");
+        }
+    }
+
+    public void decreaseQuantity(Long rawMaterialId, float quantityToDecrease) {
+        RawMaterial rawMaterial = rawMaterialRepository.findById(rawMaterialId)
+                .orElseThrow(() -> new NoSuchElementException("Raw material not found with id: " + rawMaterialId));
+
+        float newQuantity = rawMaterial.getQuantity() - quantityToDecrease;
+        float newAmount = rawMaterial.getAmount() - ((rawMaterial.getAmount() / rawMaterial.getQuantity()) * quantityToDecrease);
+        rawMaterial.setQuantity(newQuantity);
+        rawMaterial.setAmount(newAmount);
+        rawMaterialRepository.save(rawMaterial);
     }
 
     public RawMaterialDto convertToDto(RawMaterial rawMaterial) {
@@ -93,6 +117,7 @@ public class RawMaterialService {
                 .amount(rawMaterialDto.getAmount())
                 .build();
     }
+
     public void increaseQuantityAndAmount(Long rawMaterialId, float purchasedQuantity, float requiredAmount) {
         RawMaterial rawMaterial = rawMaterialRepository.findById(rawMaterialId)
                 .orElseThrow(() -> new NoSuchElementException("Raw material not found with id: " + rawMaterialId));
@@ -105,5 +130,19 @@ public class RawMaterialService {
 
         rawMaterialRepository.save(rawMaterial);
     }
+    public float costForRawMaterial(Long rawMaterialId) {
+        Optional<RawMaterial> rawMaterialOptional = rawMaterialRepository.findById(rawMaterialId);
+        if (rawMaterialOptional.isPresent()) {
+            RawMaterial rawMaterial = rawMaterialOptional.get();
+            if (rawMaterial.getQuantity() != 0) {
+                return rawMaterial.getAmount() / rawMaterial.getQuantity();
+            } else {
+                return 0;
+            }
+        } else {
+            throw new NoSuchElementException("Raw material with id " + rawMaterialId + " not found.");
+        }
+    }
+
 
 }
