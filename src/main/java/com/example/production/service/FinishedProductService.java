@@ -1,7 +1,6 @@
 package com.example.production.service;
 
 import com.example.production.dto.FinishedProductDto;
-import com.example.production.model.Budget;
 import com.example.production.model.FinishedProduct;
 import com.example.production.model.UnitsOfMeasurement;
 import com.example.production.repository.FinishedProductRepository;
