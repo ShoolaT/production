@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -60,38 +62,29 @@ public class ProductProductionService {
         return Optional.of(productionRepository.findById(id).get());
     }
 
-//    public ProductProductionDto saveProductProduction(ProductProductionDto productionDto) {
-//        ProductProduction production = convertToEntity(productionDto);
-//        production = productionRepository.save(production);
-//
-//        float producedQuantity = productionDto.getQuantity();
-//        Long productId = productionDto.getProduct().getId();
-//        productService.increaseQuantity(productId, producedQuantity);
-//        return convertToDto(production);
-//    }
-public ProductProductionDto saveProductProduction(ProductProductionDto productionDto) {
-    List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
+    public ProductProductionDto saveProductProduction(ProductProductionDto productionDto) {
+        List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
 
-    float totalCostOfRawMaterials = 0;
-    for (IngredientDto ingredient : ingredients) {
-        float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
-        float costPerUnit = rawMaterialService.costForRawMaterial(ingredient.getRawMaterial().getId());
-        totalCostOfRawMaterials += requiredQuantity * costPerUnit;
+        float totalCostOfRawMaterials = 0;
+        for (IngredientDto ingredient : ingredients) {
+            float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
+            float costPerUnit = rawMaterialService.costForRawMaterial(ingredient.getRawMaterial().getId());
+            totalCostOfRawMaterials += requiredQuantity * costPerUnit;
+        }
+
+        ProductProduction production = convertToEntity(productionDto);
+        production = productionRepository.save(production);
+
+
+        float producedQuantity = productionDto.getQuantity();
+        Long productId = productionDto.getProduct().getId();
+        productService.increaseQuantity(productId, producedQuantity);
+
+
+        productService.updateAmount(productId, totalCostOfRawMaterials);
+
+        return convertToDto(production);
     }
-
-    ProductProduction production = convertToEntity(productionDto);
-    production = productionRepository.save(production);
-
-
-    float producedQuantity = productionDto.getQuantity();
-    Long productId = productionDto.getProduct().getId();
-    productService.increaseQuantity(productId, producedQuantity);
-
-
-    productService.updateAmount(productId, totalCostOfRawMaterials);
-
-    return convertToDto(production);
-}
 
     public ProductProductionDto updateProductProduction(ProductProductionDto productionDto) {
         boolean existingProduction = productionRepository.existsById(productionDto.getId());
@@ -130,4 +123,16 @@ public ProductProductionDto saveProductProduction(ProductProductionDto productio
                 .date(productionDto.getDate())
                 .build();
     }
+
+    public int getNumberOfProductionsByEmployeeAndMonth(Employee employee, int year, int month) {
+//        LocalDate startDate = LocalDate.of(year, month, 1);
+//        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+//
+//        Date start = java.sql.Date.valueOf(startDate);
+//        Date end = java.sql.Date.valueOf(endDate);
+
+//        return productionRepository.countByEmployeeAndDateBetween(employee, start, end);
+        return productionRepository.countByEmployeeAndYearAndMonth(employee,year, month);
+    }
+
 }

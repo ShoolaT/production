@@ -10,24 +10,25 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access =   AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
-public class ProductSale {
+public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private FinishedProduct product;
-    private float quantity;
-    private float cost;
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date date;
+    private int year;
+    private int month;
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employee;
+    private int numberOfPurchase;
+    private int numberOfProduction;
+    private int numberOfSale;
+    private int common;// сумма участий
+    private float salary; // оклад сотрудника
+    private float bonus;
+    private float general; // итоговая зп
+    private boolean issued;
 }
-
 

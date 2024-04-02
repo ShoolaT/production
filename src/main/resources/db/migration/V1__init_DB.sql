@@ -82,8 +82,26 @@ create table budget
     id              bigserial not null,
     amount        float(53) not null,
     percent       float(53),
+    bonus       float(53),
     primary key (id)
 );
+create table salary
+(
+    id              bigserial not null,
+    year     int,
+    month     int,
+    employee_id     bigint,
+    number_of_purchase     int,
+    number_of_production     int,
+    number_of_sale     int,
+    common     int,
+    salary        float(53),
+    bonus          float(53) not null,
+    general          float(53) not null,
+    issued boolean,
+    primary key (id)
+);
+
 alter table if exists employee
     add constraint FKbc8rdko9o9n1ri9bpdyxv3x7i foreign key (position_id) references position;
 alter table if exists finished_product
@@ -106,3 +124,5 @@ alter table if exists raw_material_purchases
     add constraint FK90olsu114jjgkbupjxb7cjh7t foreign key (employee_id) references employee;
 alter table if exists raw_material_purchases
     add constraint FK6bfay1mfjmfet9c810femp6a2 foreign key (raw_material_id) references raw_material;
+alter table if exists salary
+    add constraint FK90olsu114jjgkbupjxb7cj34 foreign key (employee_id) references employee;

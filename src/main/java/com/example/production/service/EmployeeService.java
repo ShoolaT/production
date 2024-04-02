@@ -84,7 +84,7 @@ public class EmployeeService {
                 .build();
     }
 
-    private Employee convertToEntity(EmployeeDto employeeDto) {
+    public Employee convertToEntity(EmployeeDto employeeDto) {
         Position position = null;
         if (employeeDto.getPosition() != null) {
             position = positionService.getPosition(employeeDto.getPosition().getId()).orElse(null);

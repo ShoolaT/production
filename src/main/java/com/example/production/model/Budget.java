@@ -16,5 +16,6 @@ public class Budget {
     private Long id;
     private float amount;
     private float percent;
+    private float bonus;
 }
 

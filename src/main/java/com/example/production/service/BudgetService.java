@@ -41,4 +41,11 @@ public class BudgetService {
         Budget budget = budgetRepository.findById(1L).orElseThrow(() -> new NoSuchElementException("Budget not found"));
         return budget.getPercent();
     }
+    public float getBonus(){
+        Budget budget = budgetRepository.findById(1L).orElseThrow(() -> new NoSuchElementException("Budget not found"));
+        return budget.getBonus();
+    }
+    public Budget budgetGet(){
+        return budgetRepository.findById(1L).orElseThrow(() -> new NoSuchElementException("Budget not found"));
+    }
 }

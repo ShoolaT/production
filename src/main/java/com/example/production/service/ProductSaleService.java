@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -102,4 +104,14 @@ public class ProductSaleService {
                 .date(productSaleDto.getDate())
                 .build();
     }
+    public int getNumberOfSalesByEmployeeAndMonth(Employee employee, int year, int month) {
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        Date start = java.sql.Date.valueOf(startDate);
+        Date end = java.sql.Date.valueOf(endDate);
+
+        return productSaleRepository.countByEmployeeAndDateBetween(employee, start, end);
+    }
+
 }
