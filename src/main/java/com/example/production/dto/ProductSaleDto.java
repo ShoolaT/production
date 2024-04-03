@@ -17,7 +17,7 @@ public class ProductSaleDto {
     private Long id;
     private FinishedProductDto product;
     private float quantity;
-    private float cost;
+    private float amount;
     private EmployeeDto employee;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;

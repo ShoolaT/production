@@ -21,7 +21,7 @@
                 <tr>
                     <td>${sale.product.name}</td>
                     <td>${sale.quantity}</td>
-                    <td>${sale.cost}</td>
+                    <td>${sale.amount}</td>
                     <td>${sale.date?string("yyyy-MM-dd")}</td>
                     <td>${sale.employee.fullName}</td>
 <#--                    <td>-->

@@ -86,7 +86,7 @@ public class ProductSaleService {
                 .id(productSale.getId())
                 .product(product)
                 .quantity(productSale.getQuantity())
-                .cost(productSale.getCost())
+                .amount(productSale.getAmount())
                 .employee(employee)
                 .date(productSale.getDate())
                 .build();
@@ -99,7 +99,7 @@ public class ProductSaleService {
                 .id(productSaleDto.getId())
                 .product(product)
                 .quantity(productSaleDto.getQuantity())
-                .cost(productSaleDto.getCost())
+                .amount(productSaleDto.getAmount())
                 .employee(employee)
                 .date(productSaleDto.getDate())
                 .build();

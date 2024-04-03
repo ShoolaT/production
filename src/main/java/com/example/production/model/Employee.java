@@ -11,13 +11,14 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
+@Table(name = "employees")
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String fullName;
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "position_id", referencedColumnName = "id")
+    @JoinColumn(name = "position", referencedColumnName = "id")
     private Position position;
     private float salary;
     private String address;

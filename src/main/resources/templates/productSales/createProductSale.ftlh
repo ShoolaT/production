@@ -20,8 +20,8 @@
             </div>
 
             <div class="form-group">
-                <label for="cost">Amount:</label>
-                <input type="text" class="form-control" id="cost" name="cost" value="0" readonly required>
+                <label for="amount">Amount:</label>
+                <input type="text" class="form-control" id="amount" name="amount" value="0" readonly required>
             </div>
 
             <div class="form-group">

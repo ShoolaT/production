@@ -80,8 +80,8 @@ public class ProductSaleController {
 
             float costProduct = productService.costForFinishedProduct(productSaleDto.getProduct().getId());//себестоимость продукта
             float minCost = costProduct + costProduct * budgetService.getPercent() / 100;//стоимость продукта
-            productSaleDto.setCost(minCost * productSaleDto.getQuantity());
-            float totalCost = productSaleDto.getCost();
+            productSaleDto.setAmount(minCost * productSaleDto.getQuantity());
+            float totalCost = productSaleDto.getAmount();
             budgetService.increaseBudget(totalCost);
             productService.decreaseFinishedProduct(productSaleDto.getProduct().getId(), productSaleDto.getQuantity(), costProduct);
             productSaleService.saveProductSale(productSaleDto);
@@ -91,7 +91,7 @@ public class ProductSaleController {
         } else {
             redirectAttributes.addAttribute("productId", productSaleDto.getProduct().getId());
             redirectAttributes.addAttribute("quantity", productSaleDto.getQuantity());
-            redirectAttributes.addAttribute("cost", productSaleDto.getCost());
+            redirectAttributes.addAttribute("cost", productSaleDto.getAmount());
             redirectAttributes.addAttribute("date", productSaleDto.getDate());
             redirectAttributes.addAttribute("employeeId", productSaleDto.getEmployee().getId());
 
@@ -140,7 +140,7 @@ public class ProductSaleController {
             String formattedQuantity = df.format(productSaleDto.getQuantity());
             model.addAttribute("formattedQuantity", formattedQuantity);
 
-            String formattedCost = df.format(productSaleDto.getCost());
+            String formattedCost = df.format(productSaleDto.getAmount());
             model.addAttribute("formattedCost", formattedCost);
         } else {
             new ResponseEntity<>(HttpStatus.BAD_REQUEST);

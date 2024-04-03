@@ -19,8 +19,8 @@
             </div>
 
             <div class="form-group">
-                <label for="cost">Amount:</label>
-                <input type="text" class="form-control" id="cost" name="cost" value="${formattedCost}" required>
+                <label for="amount">Amount:</label>
+                <input type="text" class="form-control" id="amount" name="amount" value="${formattedCost}" required>
             </div>
 
             <div class="form-group">

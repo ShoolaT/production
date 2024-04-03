@@ -10,17 +10,16 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
+@Table(name = "raw_materials")
 public class RawMaterial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "unit_of_measurement_id", referencedColumnName = "id")
+    @JoinColumn(name = "unit_of_measurement", referencedColumnName = "id")
     private UnitsOfMeasurement unitsOfMeasurement;
-//    @Convert(converter = DoubleToStringConverter.class)
     private float quantity;
-//    @Convert(converter = DoubleToStringConverter.class)
     private float amount;
 }
 

@@ -13,20 +13,21 @@ import java.util.Date;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
+@Table(name = "raw_material_purchases")
 public class RawMaterialPurchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "raw_material_id", referencedColumnName = "id")
+    @JoinColumn(name = "raw_material", referencedColumnName = "id")
     private RawMaterial rawMaterial;
     private float quantity;
     private float amount;
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "employee_id", referencedColumnName = "id")
-    private Employee employee;
     @Temporal(TemporalType.DATE)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "employee", referencedColumnName = "id")
+    private Employee employee;
 }
 
