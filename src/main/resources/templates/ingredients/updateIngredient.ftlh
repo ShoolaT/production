@@ -27,6 +27,17 @@
                     </#list>
                 </select>
             </div>
+<#--            <div class="form-group">-->
+<#--                <label for="productId">Product:</label>-->
+<#--                <input type="text" class="form-control" id="productName" name="productName" value="${ingredient.product.name}" readonly>-->
+<#--                <input type="hidden" id="productId" name="product.id" value="${ingredient.product.id}">-->
+<#--            </div>-->
+
+<#--            <div class="form-group">-->
+<#--                <label for="rawMaterialId">Raw Material:</label>-->
+<#--                <input type="text" class="form-control" id="rawMaterialName" name="rawMaterialName" value="${ingredient.rawMaterial.name}" readonly>-->
+<#--                <input type="hidden" id="rawMaterialId" name="rawMaterial.id" value="${ingredient.rawMaterial.id}">-->
+<#--            </div>-->
 
             <div class="form-group">
                 <label for="quantity">Quantity:</label>

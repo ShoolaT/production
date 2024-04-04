@@ -6,6 +6,7 @@ import com.example.production.repository.IngredientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,14 +20,29 @@ public class IngredientService {
     private final FinishedProductService productService;
     private final RawMaterialService materialService;
 
-    public Page<IngredientDto> getIngredients(int page, int size, String sort) {
-        var list = ingredientRepository.findAll(PageRequest.of(page, size, Sort.by(sort)));
-        return toPage(list.getContent(), PageRequest.of(list.getNumber(), list.getSize(), list.getSort()));
-    }
+    public IngredientDto saveIngredient(IngredientDto ingredientDto) {
+        Long productId = ingredientDto.getProduct().getId();
+        Long rawMaterialId = ingredientDto.getRawMaterial().getId();
+        float quantity = ingredientDto.getQuantity();
 
-    public Page<IngredientDto> getIngredientsByProductId(Long productId, int page, int size, String sort) {
-         var list = ingredientRepository.findByProductId(productId, PageRequest.of(page, size, Sort.by(sort)));
-        return toPage(list.getContent(), PageRequest.of(list.getNumber(), list.getSize(), list.getSort()));
+        Long id = ingredientRepository.createIngredient(productId, rawMaterialId, quantity);
+        ingredientDto.setId(id);
+
+        return ingredientDto;
+    }
+    @Transactional
+    public List<IngredientDto> getIngredients() {
+        var list = ingredientRepository.getIngredients();
+        return list.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    @Transactional
+    public List<IngredientDto> getIngredientsByProductId(Long productId) {
+        var list = ingredientRepository.findByProductId(productId);
+        return list.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
 
@@ -45,40 +61,28 @@ public class IngredientService {
         return new PageImpl<>(subList, pageable, list.size());
     }
 
-    public List<IngredientDto> getAllIngredients() {
-        List<Ingredient> ingredients = ingredientRepository.findAll();
-        return ingredients.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
     public IngredientDto getIngredientById(Long id) {
         var ingredient = ingredientRepository.findById(id).get();
         return convertToDto(ingredient);
     }
 
-    public Optional<Ingredient> getIngredient(Long id) {
-        return Optional.of(ingredientRepository.findById(id).get());
-    }
-
-    public IngredientDto saveIngredient(IngredientDto ingredientDto) {
-        Ingredient ingredient = convertToEntity(ingredientDto);
-        ingredient = ingredientRepository.save(ingredient);
-        return convertToDto(ingredient);
-    }
-
     public IngredientDto updateIngredient(IngredientDto ingredientDto) {
-        boolean existingIngredient = ingredientRepository.existsById(ingredientDto.getId());
+        Long ingredientId = ingredientDto.getId();
+        Long productId = ingredientDto.getProduct().getId();
+        Long rawMaterialId = ingredientDto.getRawMaterial().getId();
+        float quantity = ingredientDto.getQuantity();
+
+        boolean existingIngredient = ingredientRepository.existsById(ingredientId);
         if (!existingIngredient) {
-            throw new NoSuchElementException("Ingredient with id " + ingredientDto.getId() + " not found.");
+            throw new NoSuchElementException("Ingredient with id " + ingredientId + " not found.");
         }
-        Ingredient ingredient = convertToEntity(ingredientDto);
-        ingredient = ingredientRepository.save(ingredient);
-        return convertToDto(ingredient);
+        ingredientRepository.updateIngredient(ingredientId, productId, rawMaterialId, quantity);
+
+        return ingredientDto;
     }
 
     public void deleteIngredient(Long id) {
-        ingredientRepository.deleteById(id);
+        ingredientRepository.deleteIngredient(id);
     }
 
     public IngredientDto convertToDto(Ingredient ingredient) {
@@ -111,14 +115,6 @@ public class IngredientService {
         return ingredientRepository.findIdByProductIdAndRawMaterialId(productId, rawMaterialId);
     }
 
-    public IngredientDto getIngredientByProductAndRawMaterial(Long productId, Long rawMaterialId) {
-        Optional<Ingredient> ingredient = ingredientRepository.findByProductIdAndRawMaterialId(productId, rawMaterialId);
-        if (ingredient.isPresent()) {
-            return convertToDto(ingredient.get());
-        } else {
-            throw new NoSuchElementException("Ingredient with productId " + productId + " and rawMaterialId " + rawMaterialId + " not found.");
-        }
-    }
 
     public List<IngredientDto> getIngredientsForProduct(Long productId) {
         List<Ingredient> ingredients = ingredientRepository.findByProduct_Id(productId);

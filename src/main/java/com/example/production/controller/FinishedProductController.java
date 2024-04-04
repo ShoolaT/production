@@ -39,7 +39,7 @@ public class FinishedProductController {
     @GetMapping("/all")
     public String getAllProducts(Model model,
                                   @RequestParam(name = "sort", defaultValue = "id") String sortCriteria) {
-        var products = productService.getFinishedProducts(0,9,sortCriteria);
+        var products = productService.getFinishedProducts();
         model.addAttribute("products", products);
         model.addAttribute("measurements", measurementService.getAllMeasurements());
         return "products/allProducts";

@@ -14,7 +14,7 @@
         </tr>
         </thead>
         <tbody>
-        <#list products.content as product>
+        <#list products as product>
             <tr>
                 <td>${product.name}</td>
                 <td>${product.unitsOfMeasurement.name}</td>
@@ -22,7 +22,7 @@
                 <td>${product.amount}</td>
                 <td>
                     <a href="/products/${product.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
-                    <button class="btn btn-outline-danger" onclick="confirmDelete(${product.id})">Delete</button>
+<#--                    <button class="btn btn-outline-danger" onclick="confirmDelete(${product.id})">Delete</button>-->
                 </td>
             </tr>
         </#list>

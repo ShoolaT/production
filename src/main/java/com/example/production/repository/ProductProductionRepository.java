@@ -4,6 +4,7 @@ import com.example.production.model.Employee;
 import com.example.production.model.ProductProduction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +15,8 @@ public interface ProductProductionRepository extends JpaRepository<ProductProduc
     int countByEmployeeAndDateBetween(Employee employee, Date startDate, Date endDate);
 
     @Query("SELECT COUNT(pp) FROM ProductProduction pp WHERE pp.employee = :employee AND YEAR(pp.date) = :year AND MONTH(pp.date) = :month")
-    int countByEmployeeAndYearAndMonth(@Param("employee") Employee employee, @Param("year") int year, @Param("month") int month);
+    int countByEmployeeAndYearAndMonth(@Param("employee") Employee employee, @Param("year") int year, @Param("month") int month);;
+    @Procedure(procedureName = "AfterProductionProcedure")
+    void afterProductionProcedure(@Param("productId")Long product, @Param("Quantity")float quantity);
+
 }

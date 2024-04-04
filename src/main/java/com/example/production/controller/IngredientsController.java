@@ -65,26 +65,6 @@ public class IngredientsController {
         ingredientService.saveIngredient(ingredientDto);
         return "redirect:/ingredients/all?productId=" + productId;
     }
-//@PostMapping("/create")
-//public String createIngredient(@ModelAttribute IngredientDto ingredientDto, Model model, RedirectAttributes redirectAttributes) {
-//    Long productId = ingredientDto.getProduct().getId();
-//
-//    if (ingredientService.existsIngredientForProduct(productId, ingredientDto.getRawMaterial().getId())) {
-//        IngredientDto existingIngredient = ingredientService.getIngredientByProductAndRawMaterial(productId, ingredientDto.getRawMaterial().getId());
-//
-//        // Увеличиваем количество ингредиента на значение, введенное пользователем
-//        existingIngredient.setQuantity(existingIngredient.getQuantity() + ingredientDto.getQuantity());
-//
-//        // Сохраняем обновленный ингредиент
-//        ingredientService.updateIngredient(existingIngredient);
-//
-//        // Перенаправляем пользователя на страницу со всеми ингредиентами для данного продукта
-//        return "redirect:/ingredients/all?productId=" + productId;
-//    }
-//
-//    ingredientService.saveIngredient(ingredientDto);
-//    return "redirect:/ingredients/all?productId=" + productId;
-//}
 
     @GetMapping("/all")
     public String getAllIngredients(Model model,
@@ -97,9 +77,9 @@ public class IngredientsController {
 
         List<IngredientDto> ingredients;
         if (productId != null) {
-            ingredients = ingredientService.getIngredientsByProductId(productId, 0, 9, sortCriteria).getContent();
+            ingredients = ingredientService.getIngredientsByProductId(productId);
         } else {
-            ingredients = ingredientService.getIngredients(0, 9, sortCriteria).getContent();
+            ingredients = ingredientService.getIngredients();
         }
 
         model.addAttribute("ingredients", ingredients);

@@ -6,7 +6,9 @@ import com.example.production.model.UnitsOfMeasurement;
 import com.example.production.repository.RawMaterialRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -142,6 +144,9 @@ public class RawMaterialService {
         } else {
             throw new NoSuchElementException("Raw material with id " + rawMaterialId + " not found.");
         }
+    }
+    public boolean checkRawMaterial(Long productId,float quantity){
+        return rawMaterialRepository.checkRawMaterial(productId, quantity);
     }
 
 

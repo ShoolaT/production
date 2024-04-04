@@ -9,6 +9,7 @@ import com.example.production.repository.ProductProductionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -62,28 +63,33 @@ public class ProductProductionService {
         return Optional.of(productionRepository.findById(id).get());
     }
 
+    @Transactional
     public ProductProductionDto saveProductProduction(ProductProductionDto productionDto) {
-        List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
-
-        float totalCostOfRawMaterials = 0;
-        for (IngredientDto ingredient : ingredients) {
-            float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
-            float costPerUnit = rawMaterialService.costForRawMaterial(ingredient.getRawMaterial().getId());
-            totalCostOfRawMaterials += requiredQuantity * costPerUnit;
-        }
-
         ProductProduction production = convertToEntity(productionDto);
         production = productionRepository.save(production);
-
-
-        float producedQuantity = productionDto.getQuantity();
-        Long productId = productionDto.getProduct().getId();
-        productService.increaseQuantity(productId, producedQuantity);
-
-
-        productService.updateAmount(productId, totalCostOfRawMaterials);
+        productionRepository.afterProductionProcedure(production.getProduct().getId(),production.getQuantity());
 
         return convertToDto(production);
+        //        List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
+//
+//        float totalCostOfRawMaterials = 0;
+//        for (IngredientDto ingredient : ingredients) {
+//            float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
+//            float costPerUnit = rawMaterialService.costForRawMaterial(ingredient.getRawMaterial().getId());
+//            totalCostOfRawMaterials += requiredQuantity * costPerUnit;
+//        }
+//
+//        ProductProduction production = convertToEntity(productionDto);
+//        production = productionRepository.save(production);
+//
+//
+//        float producedQuantity = productionDto.getQuantity();
+//        Long productId = productionDto.getProduct().getId();
+//        productService.increaseQuantity(productId, producedQuantity);
+//
+//
+//        productService.updateAmount(productId, totalCostOfRawMaterials);
+
     }
 
     public ProductProductionDto updateProductProduction(ProductProductionDto productionDto) {
@@ -132,7 +138,7 @@ public class ProductProductionService {
 //        Date end = java.sql.Date.valueOf(endDate);
 
 //        return productionRepository.countByEmployeeAndDateBetween(employee, start, end);
-        return productionRepository.countByEmployeeAndYearAndMonth(employee,year, month);
+        return productionRepository.countByEmployeeAndYearAndMonth(employee, year, month);
     }
 
 }

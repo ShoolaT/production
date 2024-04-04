@@ -8,6 +8,7 @@ import com.example.production.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,40 +64,57 @@ public class ProductProductionController {
 
         return "productions/createProductProduction";
     }
-
-
     @PostMapping("/create")
+    @Transactional
     public String createProductProduction(ProductProductionDto productionDto, RedirectAttributes redirectAttributes) {
-        List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
-
-        boolean isEnoughRawMaterial = true;
-
-        for (IngredientDto ingredient : ingredients) {
-            float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
-            if (!rawMaterialService.checkQuantity(ingredient.getRawMaterial().getId(), requiredQuantity)) {
-                isEnoughRawMaterial = false;
-                break;
-            }
-        }
-
-        if (isEnoughRawMaterial) {
-            for (IngredientDto ingredient : ingredients) {
-                float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
-                rawMaterialService.decreaseQuantity(ingredient.getRawMaterial().getId(), requiredQuantity);
-            }
+        if (rawMaterialService.checkRawMaterial(productionDto.getProduct().getId(), productionDto.getQuantity())) {
 
             productProductionService.saveProductProduction(productionDto);
             return "redirect:/productProductions/all";
         } else {
+            // Если не хватает сырья, перенаправляем обратно на страницу создания с сообщением об ошибке
             redirectAttributes.addAttribute("productId", productionDto.getProduct().getId());
             redirectAttributes.addAttribute("quantity", productionDto.getQuantity());
             redirectAttributes.addAttribute("date", productionDto.getDate());
             redirectAttributes.addAttribute("employeeId", productionDto.getEmployee().getId());
-
             isErrorQuantity = true;
             return "redirect:/productProductions/create";
         }
     }
+
+
+//    @PostMapping("/create")
+//    public String createProductProduction(ProductProductionDto productionDto, RedirectAttributes redirectAttributes) {
+//        List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
+//
+//        boolean isEnoughRawMaterial = true;
+//
+//        for (IngredientDto ingredient : ingredients) {
+//            float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
+//            if (!rawMaterialService.checkQuantity(ingredient.getRawMaterial().getId(), requiredQuantity)) {
+//                isEnoughRawMaterial = false;
+//                break;
+//            }
+//        }
+//
+//        if (isEnoughRawMaterial) {
+//            for (IngredientDto ingredient : ingredients) {
+//                float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
+//                rawMaterialService.decreaseQuantity(ingredient.getRawMaterial().getId(), requiredQuantity);
+//            }
+//
+//            productProductionService.saveProductProduction(productionDto);
+//            return "redirect:/productProductions/all";
+//        } else {
+//            redirectAttributes.addAttribute("productId", productionDto.getProduct().getId());
+//            redirectAttributes.addAttribute("quantity", productionDto.getQuantity());
+//            redirectAttributes.addAttribute("date", productionDto.getDate());
+//            redirectAttributes.addAttribute("employeeId", productionDto.getEmployee().getId());
+//
+//            isErrorQuantity = true;
+//            return "redirect:/productProductions/create";
+//        }
+//    }
 
     @GetMapping("/all")
     public String getAllProductSales(Model model,
@@ -106,7 +124,7 @@ public class ProductProductionController {
 
         model.addAttribute("employees", employees);
         model.addAttribute("products", products);
-        List<ProductProductionDto> productions = productProductionService.getProductProduction(0, 9, sortCriteria).getContent();
+        List<ProductProductionDto> productions = productProductionService.getProductProduction(0, 30, sortCriteria).getContent();
 
         model.addAttribute("productions", productions);
 

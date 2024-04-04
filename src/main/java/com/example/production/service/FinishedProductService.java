@@ -20,9 +20,12 @@ public class FinishedProductService {
     private final FinishedProductRepository finishedProductRepository;
     private final UnitsOfMeasurementService unitsOfMeasurementService;
 
-    public Page<FinishedProductDto> getFinishedProducts(int page, int size, String sort) {
-        var list = finishedProductRepository.findAll(PageRequest.of(page, size, Sort.by(sort)));
-        return toPage(list.getContent(), PageRequest.of(list.getNumber(), list.getSize(), list.getSort()));
+    @Transactional
+    public List<FinishedProductDto> getFinishedProducts() {
+        var list = finishedProductRepository.getFinishedProducts();
+        return list.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private Page<FinishedProductDto> toPage(List<FinishedProduct> products, Pageable pageable) {
@@ -39,8 +42,9 @@ public class FinishedProductService {
         List<FinishedProductDto> subList = list.subList(startIndex, endIndex);
         return new PageImpl<>(subList, pageable, list.size());
     }
+    @Transactional
     public List<FinishedProductDto> getAllFinishedProducts() {
-        List<FinishedProduct> productDto = finishedProductRepository.findAll();
+        List<FinishedProduct> productDto = finishedProductRepository.getFinishedProducts();
         return productDto.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -55,18 +59,22 @@ public class FinishedProductService {
     }
 
     public FinishedProductDto saveFinishedProduct(FinishedProductDto productDto) {
-        FinishedProduct finishedProduct = convertToEntity(productDto);
-        finishedProduct = finishedProductRepository.save(finishedProduct);
-        return convertToDto(finishedProduct);
+        Long productId = finishedProductRepository.createFinishedProduct(productDto.getName(), productDto.getUnitsOfMeasurement().getId());
+        productDto.setId(productId);
+
+        return productDto;
     }
     public FinishedProductDto updateProduct(FinishedProductDto productDto) {
         boolean existingProduct = finishedProductRepository.existsById(productDto.getId());
         if(!existingProduct){
             throw new NoSuchElementException("Product with name " + productDto.getName() + " not found.");
         }
-        FinishedProduct product = convertToEntity(productDto);
-        product = finishedProductRepository.save(product);
-        return convertToDto(product);
+        Long productId = productDto.getId();
+        String productName = productDto.getName();
+        Long unitOfMeasurementId = productDto.getUnitsOfMeasurement().getId();
+
+        finishedProductRepository.updateFinishedProduct(productId, productName, unitOfMeasurementId);
+        return productDto;
     }
 
     public void deleteFinishedProduct(Long id) {
