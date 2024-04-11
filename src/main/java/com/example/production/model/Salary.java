@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor(access =   AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Entity
+@Table(name = "salary")
 public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

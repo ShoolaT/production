@@ -1,6 +1,6 @@
 <#import "../layout.ftlh" as main>
 <@main.layout>
-    <div class="container mt-5">
+    <div class="container mt-2">
         <h2>Edit Salary</h2>
 
         <form action="/salaries/${salary1.id}/edit" method="post" class="needs-validation" novalidate>

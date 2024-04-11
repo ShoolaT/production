@@ -45,9 +45,7 @@ public class SalaryController {
 
         List<Salary> salaries = salaryService.getSalariesByYearAndMonth(year, month);
 
-        double totalAmount = salaries.stream()
-                .mapToDouble(Salary::getGeneral)
-                .sum();
+        float totalAmount = salaryService.getTotalSalaryForMonth(year,month);
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setDecimalSeparator('.');
@@ -59,8 +57,6 @@ public class SalaryController {
         model.addAttribute("salaries", salaries);
         model.addAttribute("years", getYears());
         model.addAttribute("months", getMonths());
-        System.out.println("Вывод year "+ String.valueOf(currentYear));
-        System.out.println(currentMonth);
 
         model.addAttribute("currentYear", String.valueOf(year));
         model.addAttribute("currentMonth", month);
@@ -86,9 +82,7 @@ public class SalaryController {
 
         List<Salary> salaries = salaryService.getSalariesByYearAndMonth(year, month);
 
-        double totalAmount = salaries.stream()
-                .mapToDouble(Salary::getGeneral)
-                .sum();
+        float totalAmount = salaryService.getTotalSalaryForMonth(year, month);
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setDecimalSeparator('.');
@@ -130,13 +124,9 @@ public class SalaryController {
 
     @PostMapping("/{id}/edit")
     public String updateSalary(@PathVariable Long id,
-                               @RequestParam("salaryAmount") float salaryAmount,
                                @ModelAttribute Salary salary,
                                RedirectAttributes redirectAttributes) {
-        System.out.println("Salary: " + salary.getSalary());
-        salary.setId(id);
-        salary.setSalary(salaryAmount);
-        salaryService.updateSalary(salary);
+        salaryService.updateSalary(id, salary.getGeneral());
 
         int year = salary.getYear();
         int month = salary.getMonth();
@@ -149,15 +139,7 @@ public class SalaryController {
     @PostMapping("/issue")
     public String issueSalaries(Model model, @RequestParam("year") int year, @RequestParam("month") int month,
                                 RedirectAttributes redirectAttributes) {
-        List<Salary> salaries = salaryService.getSalariesByYearAndMonth(year, month);
-
-        double totalAmount = salaries.stream().mapToDouble(Salary::getGeneral).sum();
-
-        if (budgetService.checkBudget((float) totalAmount)) {
-            budgetService.decreaseBudget((float) totalAmount);
-
-            salaryService.updateSalariesIssuedStatus(year, month, true);
-
+        if (salaryService.updateSalariesIssuedStatus(year, month)) {
 
             redirectAttributes.addAttribute("year", String.valueOf(year));
             redirectAttributes.addAttribute("month", month);
@@ -168,11 +150,9 @@ public class SalaryController {
         }
     }
 
-
     private static List<String> getYears() {
-        int currentYear = YearMonth.now().getYear();
-        int startYear = 2000;
-        return IntStream.rangeClosed(startYear, currentYear)
+        int startYear = 2020;
+        return IntStream.rangeClosed(startYear, 2030)
                 .mapToObj(Integer::toString)
                 .collect(Collectors.toList());
     }
