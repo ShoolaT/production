@@ -13,7 +13,7 @@
                 <th scope="col">Amount</th>
                 <th scope="col">Date</th>
                 <th scope="col">Employee</th>
-<#--                <th scope="col">Actions</th>-->
+                <#--                <th scope="col">Actions</th>-->
             </tr>
             </thead>
             <tbody>
@@ -24,10 +24,10 @@
                     <td>${sale.amount}</td>
                     <td>${sale.date?string("yyyy-MM-dd")}</td>
                     <td>${sale.employee.fullName}</td>
-<#--                    <td>-->
-<#--&lt;#&ndash;                        <a href="/productSales/edit/${sale.id}" class="btn btn-outline-warning mx-2">Edit</a>&ndash;&gt;-->
-<#--                        <button class="btn btn-outline-danger" onclick="confirmDelete(${sale.id})">Delete</button>-->
-<#--                    </td>-->
+                    <#--                    <td>-->
+                    <#--&lt;#&ndash;                        <a href="/productSales/edit/${sale.id}" class="btn btn-outline-warning mx-2">Edit</a>&ndash;&gt;-->
+                    <#--                        <button class="btn btn-outline-danger" onclick="confirmDelete(${sale.id})">Delete</button>-->
+                    <#--                    </td>-->
                 </tr>
             </#list>
             </tbody>
@@ -35,14 +35,16 @@
     </div>
 
     <div class="mt-3">
-        <a href="/productSales/create" class="btn btn-success">Add Product Sale</a>
+        <#if roles?seq_contains('ADMIN') || roles?seq_contains('MANAGER')>
+            <a href="/productSales/create" class="btn btn-success">Add Product Sale</a>
+        </#if>
     </div>
 
     <script>
         function confirmDelete(saleId) {
             var confirmation = confirm("Are you sure you want to delete this product sale?");
             if (confirmation) {
-                window.location.href = '/productSales/'+ saleId+ '/delete/confirmed';
+                window.location.href = '/productSales/' + saleId + '/delete/confirmed';
             }
         }
     </script>

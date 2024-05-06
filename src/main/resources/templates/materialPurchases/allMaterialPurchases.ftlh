@@ -25,8 +25,12 @@
                     <td>${purchase.employee.fullName}</td>
                     <td>${purchase.date?string("yyyy-MM-dd")}</td>
                     <td>
-                        <a href="/materialPurchases/edit/${purchase.id}" class="btn btn-outline-warning mx-2">Edit</a>
-                        <button class="btn btn-outline-danger" onclick="confirmDelete(${purchase.id})">Delete</button>
+                        <#if roles?seq_contains('ADMIN')>
+                            <a href="/materialPurchases/edit/${purchase.id}"
+                               class="btn btn-outline-warning mx-2">Edit</a>
+                            <button class="btn btn-outline-danger" onclick="confirmDelete(${purchase.id})">Delete
+                            </button>
+                        </#if>
                     </td>
                 </tr>
             </#list>
@@ -35,14 +39,16 @@
     </div>
 
     <div class="mt-3">
-        <a href="/materialPurchases/create" class="btn btn-success">Add Material Purchase</a>
+        <#if roles?seq_contains('ADMIN') || roles?seq_contains('MANAGER')>
+            <a href="/materialPurchases/create" class="btn btn-success">Add Material Purchase</a>
+        </#if>
     </div>
 
     <script>
         function confirmDelete(purchaseId) {
             var confirmation = confirm("Are you sure you want to delete this material purchase?");
             if (confirmation) {
-                window.location.href = '/materialPurchases/'+ purchaseId+ '/delete/confirmed';
+                window.location.href = '/materialPurchases/' + purchaseId + '/delete/confirmed';
             }
         }
     </script>

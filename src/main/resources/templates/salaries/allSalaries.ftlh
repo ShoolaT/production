@@ -40,14 +40,16 @@
 
     <p class="mt-3 fs-3 text-success">Budget: ${budget}</p>
     <p class="mt-3 fs-4 text-primary">Total amount: ${totalAmount}</p>
-    <#if salaries[0].issued == false>
-        <form id="issueForm" action="/salaries/issue" method="post">
-            <input type="hidden" name="year" value="${currentYear}">
-            <input type="hidden" name="month" value="${currentMonth}">
-            <button id="issueButton" class="btn btn-outline-primary mx-2">Issue</button>
-        </form>
-    <#else>
-        <p class="text-primary">This month's salary had already been issued</p>
+    <#if roles?seq_contains('ADMIN') || roles?seq_contains('ACCOUNTANT')>
+        <#if salaries[0].issued == false>
+            <form id="issueForm" action="/salaries/issue" method="post">
+                <input type="hidden" name="year" value="${currentYear}">
+                <input type="hidden" name="month" value="${currentMonth}">
+                <button id="issueButton" class="btn btn-outline-primary mx-2">Issue</button>
+            </form>
+        <#else>
+            <p class="text-primary">This month's salary had already been issued</p>
+        </#if>
     </#if>
 
 
@@ -80,9 +82,11 @@
                     <td>${salary.general}</td>
                     <td>${salary.issued?string('Yes', 'No')}</td>
                     <#if salary.issued == false>
-                        <td>
-                            <a href="/salaries/${salary.id}/edit" class="btn btn-outline-warning me-2">Edit</a>
-                        </td>
+                        <#if roles?seq_contains('ADMIN') || roles?seq_contains('ACCOUNTANT')>
+                            <td>
+                                <a href="/salaries/${salary.id}/edit" class="btn btn-outline-warning me-2">Edit</a>
+                            </td>
+                        </#if>
                     <#else>
                         <td>No Actions</td>
                     </#if>
@@ -105,7 +109,7 @@
                 var budget = parseFloat('${budget}');
                 var totalAmount = parseFloat('${totalAmount}');
 
-                console.log("Budget "+ budget);
+                console.log("Budget " + budget);
                 console.log(totalAmount);
 
                 if (budget >= totalAmount) {

@@ -9,7 +9,8 @@
             <select class="form-control" id="productFilter" name="productId" onchange="filterIngredients()">
                 <option value="">All Products</option>
                 <#list products as product>
-                    <option value="${product.id}" <#if product.id == (selectedProductId!)?number>selected</#if>>${product.name}</option>
+                    <option value="${product.id}"
+                            <#if product.id == (selectedProductId!)?number>selected</#if>>${product.name}</option>
                 </#list>
             </select>
         </div>
@@ -31,8 +32,12 @@
                 <td>${ingredient.rawMaterial.name}</td>
                 <td>${ingredient.quantity}</td>
                 <td>
-                    <a href="/ingredients/${ingredient.id}/edit" class="btn btn-outline-warning me-2">Edit</a>
-                    <button class="btn btn-outline-danger" onclick="confirmDelete(${ingredient.id}, ${selectedProductId})">Delete</button>
+                    <#if roles?seq_contains('ADMIN') || roles?seq_contains('TECHNOLOGIST')>
+                        <a href="/ingredients/${ingredient.id}/edit" class="btn btn-outline-warning me-2">Edit</a>
+                        <button class="btn btn-outline-danger"
+                                onclick="confirmDelete(${ingredient.id}, ${selectedProductId})">Delete
+                        </button>
+                    </#if>
                 </td>
             </tr>
         </#list>
@@ -40,7 +45,9 @@
     </table>
 
     <div class="mt-3">
-        <a href="/ingredients/create?productId=${selectedProductId}" class="btn btn-success">Add Ingredient</a>
+        <#if roles?seq_contains('ADMIN') || roles?seq_contains('TECHNOLOGIST')>
+            <a href="/ingredients/create?productId=${selectedProductId}" class="btn btn-success">Add Ingredient</a>
+        </#if>
     </div>
 
     <script>
@@ -48,10 +55,11 @@
             var selectedProductId = document.getElementById("productFilter").value;
             var selectedProductName = document.getElementById("productFilter").options[document.getElementById("productFilter").selectedIndex].text;
 
-            setTimeout(function() {
+            setTimeout(function () {
                 window.location.href = "/ingredients/all?sort=id&productId=" + selectedProductId;
             }, 10);
         }
+
         function confirmDelete(ingredientId, productId) {
             var confirmation = confirm("Are you sure you want to delete this ingredient?");
             if (confirmation) {

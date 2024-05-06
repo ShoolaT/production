@@ -5,7 +5,8 @@
 
     <div class="mt-3">
         <div class="btn-group">
-            <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-outline-dark dropdown-toggle" data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
                 Sort By
             </button>
             <ul class="dropdown-menu">
@@ -40,19 +41,25 @@
                         <td>${position.name}</td>
                     </#if>
                 </#list>
-                <td>
-                    <a href="/employees/${employee.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
-<#--                    <a href="/employees/${employee.id}/delete" class="btn btn-outline-danger mt-auto">Delete</a>-->
-                    <button class="btn btn-outline-danger" onclick="confirmDelete(${employee.id})">Delete</button>
-
-                </td>
+                <#if roles?seq_contains('ADMIN')>
+                    <td>
+                        <a href="/employees/${employee.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
+                        <button class="btn btn-outline-danger" onclick="confirmDelete(${employee.id})">Delete</button>
+                    </td>
+<#--                <#elseif roles?seq_contains('DIRECTOR')>-->
+<#--                    <td>-->
+<#--                        <a href="/employees/${employee.id}" class="btn btn-outline-info mx-2">View</a>-->
+<#--                    </td>-->
+                </#if>
             </tr>
         </#list>
         </tbody>
     </table>
 
     <div class="mt-3">
-        <a href="/employees/create" class="btn btn-success">Add Employee</a>
+        <#if roles?seq_contains('ADMIN')>
+            <a href="/employees/create" class="btn btn-success">Add Employee</a>
+        </#if>
     </div>
     <script>
         function confirmDelete(employeeId) {

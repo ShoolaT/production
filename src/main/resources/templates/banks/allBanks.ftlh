@@ -26,8 +26,10 @@
                     <td>${bank.receiptDate?string("yyyy-MM-dd")}</td>
                     <td>
                         <a href="/credits/${bank.id}/history" class="btn btn-success mx-2">Payment history</a>
-                        <#if bank.paid == false>
-                        <a href="/credits/pay/${bank.id}" class="btn btn-outline-warning mx-2">Credit pay</a>
+                        <#if roles?seq_contains('ADMIN')|| roles?seq_contains('ACCOUNTANT')>
+                            <#if bank.paid == false>
+                                <a href="/credits/pay/${bank.id}" class="btn btn-outline-warning mx-2">Credit pay</a>
+                            </#if>
                         </#if>
                     </td>
                 </tr>
@@ -37,6 +39,8 @@
     </div>
 
     <div class="mt-3">
-        <a href="/credits/create" class="btn btn-success">Add credit</a>
+        <#if roles?seq_contains('ADMIN')|| roles?seq_contains('ACCOUNTANT')>
+            <a href="/credits/create" class="btn btn-success">Add credit</a>
+        </#if>
     </div>
 </@main.layout>

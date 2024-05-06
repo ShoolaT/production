@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +20,7 @@ import java.text.DecimalFormatSymbols;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -61,6 +61,12 @@ public class SalaryController {
         model.addAttribute("currentYear", String.valueOf(year));
         model.addAttribute("currentMonth", month);
 
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        model.addAttribute("roles", roles);
+
         return "salaries/allSalaries";
     }
 
@@ -94,6 +100,12 @@ public class SalaryController {
         model.addAttribute("salaries", salaries);
         model.addAttribute("years", getYears());
         model.addAttribute("months", getMonths());
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        model.addAttribute("roles", roles);
 
         return "salaries/allSalaries";
     }

@@ -2,11 +2,16 @@ package com.example.production.controller;
 
 import com.example.production.dto.EmployeeDto;
 import com.example.production.dto.FinishedProductDto;
-import com.example.production.dto.IngredientDto;
 import com.example.production.dto.ProductProductionDto;
-import com.example.production.service.*;
+import com.example.production.service.EmployeeService;
+import com.example.production.service.FinishedProductService;
+import com.example.production.service.ProductProductionService;
+import com.example.production.service.RawMaterialService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -17,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/productProductions")
@@ -26,7 +33,6 @@ public class ProductProductionController {
     private final ProductProductionService productProductionService;
     private final FinishedProductService productService;
     private final EmployeeService employeeService;
-    private final IngredientService ingredientService;
     private final RawMaterialService rawMaterialService;
     private boolean isErrorQuantity;
 
@@ -64,6 +70,7 @@ public class ProductProductionController {
 
         return "productions/createProductProduction";
     }
+
     @PostMapping("/create")
     @Transactional
     public String createProductProduction(ProductProductionDto productionDto, RedirectAttributes redirectAttributes) {
@@ -82,40 +89,6 @@ public class ProductProductionController {
         }
     }
 
-
-//    @PostMapping("/create")
-//    public String createProductProduction(ProductProductionDto productionDto, RedirectAttributes redirectAttributes) {
-//        List<IngredientDto> ingredients = ingredientService.getIngredientsForProduct(productionDto.getProduct().getId());
-//
-//        boolean isEnoughRawMaterial = true;
-//
-//        for (IngredientDto ingredient : ingredients) {
-//            float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
-//            if (!rawMaterialService.checkQuantity(ingredient.getRawMaterial().getId(), requiredQuantity)) {
-//                isEnoughRawMaterial = false;
-//                break;
-//            }
-//        }
-//
-//        if (isEnoughRawMaterial) {
-//            for (IngredientDto ingredient : ingredients) {
-//                float requiredQuantity = ingredient.getQuantity() * productionDto.getQuantity();
-//                rawMaterialService.decreaseQuantity(ingredient.getRawMaterial().getId(), requiredQuantity);
-//            }
-//
-//            productProductionService.saveProductProduction(productionDto);
-//            return "redirect:/productProductions/all";
-//        } else {
-//            redirectAttributes.addAttribute("productId", productionDto.getProduct().getId());
-//            redirectAttributes.addAttribute("quantity", productionDto.getQuantity());
-//            redirectAttributes.addAttribute("date", productionDto.getDate());
-//            redirectAttributes.addAttribute("employeeId", productionDto.getEmployee().getId());
-//
-//            isErrorQuantity = true;
-//            return "redirect:/productProductions/create";
-//        }
-//    }
-
     @GetMapping("/all")
     public String getAllProductSales(Model model,
                                      @RequestParam(name = "sort", defaultValue = "id") String sortCriteria) {
@@ -128,6 +101,11 @@ public class ProductProductionController {
 
         model.addAttribute("productions", productions);
 
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        model.addAttribute("roles", roles);
         return "productions/allProductProductions";
     }
 }

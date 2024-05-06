@@ -8,11 +8,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.GrantedAuthority;
+
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/employees")
@@ -29,6 +35,7 @@ public class EmployeeController {
     }
     @PostMapping("/create")
     public String createEmployee(@ModelAttribute EmployeeDto employeeDto) {
+
         employeeService.saveEmployee(employeeDto);
         return "redirect:/employees/all";
     }
@@ -36,7 +43,14 @@ public class EmployeeController {
     @GetMapping("/all")
     public String getAllEmployees(Model model,
                                   @RequestParam(name = "sort", defaultValue = "id") String sortCriteria) {
-        var employees = employeeService.getEmployees(0,9,sortCriteria);
+        var employees = employeeService.getEmployees(0,40,sortCriteria);
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        model.addAttribute("roles", roles);
+
         model.addAttribute("employees", employees);
         model.addAttribute("positions", positionService.getAllPositions());
         return "employees/allEmployees";

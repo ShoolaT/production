@@ -21,8 +21,10 @@
                 <td>${material.quantity}</td>
                 <td>${material.amount}</td>
                 <td>
-                    <a href="/materials/${material.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
-                    <button class="btn btn-outline-danger" onclick="confirmDelete(${material.id})">Delete</button>
+                    <#if roles?seq_contains('ADMIN') || roles?seq_contains('MANAGER')>
+                        <a href="/materials/${material.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
+                        <button class="btn btn-outline-danger" onclick="confirmDelete(${material.id})">Delete</button>
+                    </#if>
                 </td>
             </tr>
         </#list>
@@ -30,7 +32,9 @@
     </table>
 
     <div class="mt-3">
-        <a href="/materials/create" class="btn btn-success">Add Raw material</a>
+        <#if roles?seq_contains('ADMIN') || roles?seq_contains('MANAGER')>
+            <a href="/materials/create" class="btn btn-success">Add Raw material</a>
+        </#if>
     </div>
     <script>
         function confirmDelete(materialId) {

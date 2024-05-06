@@ -1,5 +1,4 @@
 <#import "../layout.ftlh" as main>
-
 <@main.layout>
     <h2>All Product Productions</h2>
 
@@ -27,15 +26,8 @@
     </div>
 
     <div class="mt-3">
-        <a href="/productProductions/create" class="btn btn-success">Add Product Production</a>
+        <#if roles?seq_contains('ADMIN') || roles?seq_contains('TECHNOLOGIST')>
+            <a href="/productProductions/create" class="btn btn-success">Add Product Production</a>
+        </#if>
     </div>
-
-<#--    <script>-->
-<#--        function confirmDelete(saleId) {-->
-<#--            var confirmation = confirm("Are you sure you want to delete this product sale?");-->
-<#--            if (confirmation) {-->
-<#--                window.location.href = '/productSales/'+ saleId+ '/delete/confirmed';-->
-<#--            }-->
-<#--        }-->
-<#--    </script>-->
 </@main.layout>

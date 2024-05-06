@@ -21,8 +21,9 @@
                 <td>${product.quantity}</td>
                 <td>${product.amount}</td>
                 <td>
-                    <a href="/products/${product.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
-<#--                    <button class="btn btn-outline-danger" onclick="confirmDelete(${product.id})">Delete</button>-->
+                    <#if roles?seq_contains('ADMIN') || roles?seq_contains('MANAGER')>
+                        <a href="/products/${product.id}/edit" class="btn btn-outline-warning mx-2">Edit</a>
+                    </#if>
                 </td>
             </tr>
         </#list>
@@ -30,7 +31,9 @@
     </table>
 
     <div class="mt-3">
+        <#if roles?seq_contains('ADMIN')|| roles?seq_contains('MANAGER')>
         <a href="/products/create" class="btn btn-success">Add Product</a>
+        </#if>
     </div>
     <script>
         function confirmDelete(productId) {

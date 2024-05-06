@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/productSales")
@@ -31,7 +36,6 @@ public class ProductSaleController {
     private final EmployeeService employeeService;
     private final BudgetService budgetService;
     private boolean isErrorQuantity;
-//    private boolean isErrorCost;
 
     @GetMapping("/create")
     public String createProductSale(Model model,
@@ -121,6 +125,12 @@ public class ProductSaleController {
         List<ProductSaleDto> productSales = productSaleService.getProductSales(0, 9, sortCriteria).getContent();
 
         model.addAttribute("productSales", productSales);
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+        model.addAttribute("roles", roles);
 
         return "productSales/allProductSales";
     }

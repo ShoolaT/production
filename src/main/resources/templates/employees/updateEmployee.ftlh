@@ -30,9 +30,17 @@
             </div>
 
             <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="${employeeDto.email}">
+            </div>
+
+            <div class="form-group">
                 <label for="phoneNumber">Phone Number:</label>
                 <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="${employeeDto.phoneNumber}">
             </div>
+
+            <input type="hidden" class="form-control" id="password" name="password" value="${employeeDto.password}">
+
 
             <div class="mt-2">
                 <button type="submit" class="btn btn-primary">Update</button>
