@@ -1,15 +1,16 @@
 package com.example.production.service;
 
 import com.example.production.dto.ProductSaleDto;
+import com.example.production.model.Bank;
 import com.example.production.model.Employee;
 import com.example.production.model.FinishedProduct;
 import com.example.production.model.ProductSale;
 import com.example.production.repository.ProductSaleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -22,43 +23,20 @@ public class ProductSaleService {
     private final ProductSaleRepository productSaleRepository;
     private final FinishedProductService productService;
     private final EmployeeService employeeService;
+    @Transactional
 
-    public Page<ProductSaleDto> getProductSales(int page, int size, String sort) {
-        var list = productSaleRepository.findAll(PageRequest.of(page, size, Sort.by(sort)));
-        return toPage(list.getContent(), PageRequest.of(list.getNumber(), list.getSize(), list.getSort()));
-    }
-
-    private Page<ProductSaleDto> toPage(List<ProductSale> productSales, Pageable pageable) {
-        var list = productSales.stream()
-                .map(this::convertToDto)
-                .toList();
-        if (pageable.getOffset() >= list.size()) {
-            return Page.empty();
+    public List<ProductSale> getProductSales(Date startDate, Date endDate) {
+        if (startDate == null && endDate == null) {
+            return productSaleRepository.getSalesByDate(null, null);
+        } else {
+            return productSaleRepository.getSalesByDate(startDate, endDate);
         }
-        int startIndex = (int) pageable.getOffset();
-        int endIndex = (int) ((pageable.getOffset() + pageable.getPageSize()) > list.size() ?
-                list.size() :
-                pageable.getOffset() + pageable.getPageSize());
-        List<ProductSaleDto> subList = list.subList(startIndex, endIndex);
-        return new PageImpl<>(subList, pageable, list.size());
-    }
-
-    public List<ProductSaleDto> getAllProductSales() {
-        List<ProductSale> productSales = productSaleRepository.findAll();
-        return productSales.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
     }
 
     public ProductSaleDto getProductSaleById(Long id) {
         var productSale = productSaleRepository.findById(id).get();
         return convertToDto(productSale);
     }
-
-    public Optional<ProductSale> getProductSale(Long id) {
-        return Optional.of(productSaleRepository.findById(id).get());
-    }
-
     public ProductSaleDto saveProductSale(ProductSaleDto productSaleDto) {
         ProductSale productSale = convertToEntity(productSaleDto);
         productSale = productSaleRepository.save(productSale);
@@ -78,6 +56,22 @@ public class ProductSaleService {
     public void deleteProductSale(Long id) {
         productSaleRepository.deleteById(id);
     }
+    public float calculateTotalQuantity(List<ProductSale> sales) {
+        float totalQuantity = 0;
+        for (ProductSale productSale : sales) {
+            totalQuantity += productSale.getQuantity();
+        }
+        return totalQuantity;
+    }
+
+    public float calculateTotalAmount(List<ProductSale> sales) {
+        float totalAmount = 0;
+        for (ProductSale productSale : sales) {
+            totalAmount += productSale.getAmount();
+        }
+        return totalAmount;
+    }
+
 
     public ProductSaleDto convertToDto(ProductSale productSale) {
         var product = productService.getFinishedProductById(productSale.getProduct().getId());
@@ -103,15 +97,6 @@ public class ProductSaleService {
                 .employee(employee)
                 .date(productSaleDto.getDate())
                 .build();
-    }
-    public int getNumberOfSalesByEmployeeAndMonth(Employee employee, int year, int month) {
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
-
-        Date start = java.sql.Date.valueOf(startDate);
-        Date end = java.sql.Date.valueOf(endDate);
-
-        return productSaleRepository.countByEmployeeAndDateBetween(employee, start, end);
     }
 
 }

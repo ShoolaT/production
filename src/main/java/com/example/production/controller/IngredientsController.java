@@ -58,13 +58,22 @@ public class IngredientsController {
         Long productId = ingredientDto.getProduct().getId();
 
         if (ingredientService.existsIngredientForProduct(productId, ingredientDto.getRawMaterial().getId())) {
-            Long existingIngredient = ingredientService.getExistingIngredientId(productId, ingredientDto.getRawMaterial().getId());
+            FinishedProductDto selectedProduct = productService.getFinishedProductById(productId);
 
-            redirectAttributes.addAttribute("id", existingIngredient);
-            redirectAttributes.addAttribute("productId", productId);
-            redirectAttributes.addFlashAttribute("message", "Так как ингредиент был уже создан, вас перенаправило на страницу редактирования этого ингредиента.");
+            model.addAttribute("products", productService.getAllFinishedProducts());
+            model.addAttribute("materials", rawMaterialService.getAllMaterials());
+            model.addAttribute("ingredientExists", true);
+            model.addAttribute("message", "Such raw materials for this product already exist");
 
-            return "redirect:/ingredients/{id}/edit";
+            model.addAttribute("selectedProduct", selectedProduct);
+            return "ingredients/createIngredient";
+//            Long existingIngredient = ingredientService.getExistingIngredientId(productId, ingredientDto.getRawMaterial().getId());
+//
+//            redirectAttributes.addAttribute("id", existingIngredient);
+//            redirectAttributes.addAttribute("productId", productId);
+//            redirectAttributes.addFlashAttribute("message", "Так как ингредиент был уже создан, вас перенаправило на страницу редактирования этого ингредиента.");
+//
+//            return "redirect:/ingredients/{id}/edit";
         }
 
         ingredientService.saveIngredient(ingredientDto);

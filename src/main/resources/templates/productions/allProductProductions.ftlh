@@ -1,7 +1,7 @@
 <#import "../layout.ftlh" as main>
 <@main.layout>
     <h2>All Product Productions</h2>
-
+    <a href="/productProductions/all/report" class="mt-2 btn btn-outline-success">Report Product Production</a>
     <div class="mt-3">
         <table class="table">
             <thead>

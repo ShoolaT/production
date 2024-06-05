@@ -10,4 +10,9 @@ import org.springframework.stereotype.Repository;
 public interface EmployeeRepository extends JpaRepository<Employee, Long>{
     @Query("SELECT u FROM Employee u WHERE u.email = :email")
     Employee getUserByUsername(@Param("email") String email);
+    @Query("SELECT u.fullName FROM Employee u WHERE u.email = :email")
+    String getFullNameByEmail(@Param("email") String email);
+    @Query("SELECT u.fullName, u.position.name FROM Employee u WHERE u.email = :email")
+    String getEmployeeDetailsByEmail(@Param("email") String email);
+
 }

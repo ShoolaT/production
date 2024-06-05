@@ -2,7 +2,7 @@
 
 <@main.layout>
     <h2>Bank</h2>
-
+    <a href="/credits/all/report" class="mt-2 btn btn-outline-success">Report Credits</a>
     <p class="mt-3 fs-3 text-success">Budget: ${budget}</p>
     <div class="mt-3">
         <table class="table">

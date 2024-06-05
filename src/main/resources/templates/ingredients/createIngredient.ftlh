@@ -1,9 +1,22 @@
-<!-- ingredients/createIngredient.html -->
 <#import "../layout.ftlh" as main>
 
 <@main.layout>
     <div class="container mt-5">
         <h2>Create Ingredient</h2>
+
+        <#if message?exists && message != "">
+            <div id="message" class="alert alert-danger" role="alert">
+                ${message}
+            </div>
+            <script>
+                setTimeout(function(){
+                    var messageDiv = document.getElementById("message");
+                    if (messageDiv) {
+                        messageDiv.style.display = "none";
+                    }
+                }, 10000); // 10 секунд
+            </script>
+        </#if>
 
         <form id="createIngredientForm" action="/ingredients/create" method="post" class="needs-validation">
             <div class="form-group">
@@ -29,8 +42,7 @@
                 <input type="text" class="form-control" id="quantity" name="quantity" required>
             </div>
 
-
-            <input type="hidden" id="ingredientExists" name="ingredientExists"/>
+            <input type="hidden" id="ingredientExists" name="ingredientExists" value="${ingredientExists?string('true', 'false')}"/>
 
             <div class="mt-2">
                 <button type="button" class="btn btn-primary" onclick="confirmCreate()">Create</button>
@@ -43,12 +55,17 @@
             var ingredientExists = document.getElementById('ingredientExists').value;
 
             if (ingredientExists === 'true') {
-                window.location.href = '#exampleModal';
+                var messageDiv = document.createElement('div');
+                messageDiv.className = 'alert alert-danger';
+                messageDiv.role = 'alert';
+                messageDiv.innerText = 'Such raw materials for this product already exist';
+                document.body.insertBefore(messageDiv, document.body.firstChild);
+                setTimeout(function() {
+                    messageDiv.style.display = 'none';
+                }, 10000);
             } else {
                 document.getElementById('createIngredientForm').submit();
             }
         }
     </script>
-
-
 </@main.layout>

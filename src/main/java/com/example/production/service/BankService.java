@@ -2,11 +2,13 @@ package com.example.production.service;
 
 import com.example.production.dto.BankDto;
 import com.example.production.model.Bank;
+import com.example.production.model.Salary;
 import com.example.production.repository.BankRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,11 +18,12 @@ import java.util.stream.Collectors;
 public class BankService {
     private final BankRepository bankRepository;
     @Transactional
-    public List<BankDto> getBanks() {
-        var list = bankRepository.getBanks();
-        return list.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    public List<Bank> getBanks(Date startDate, Date endDate) {
+        if (startDate == null && endDate == null) {
+            return bankRepository.getBanksByDate(null, null);
+        } else {
+            return bankRepository.getBanksByDate(startDate, endDate);
+        }
     }
     public Optional<Bank> getBank(Long id) {
         return Optional.of(bankRepository.findById(id).get());
@@ -32,6 +35,13 @@ public class BankService {
     public boolean isPaid(Long id){
         var bank = bankRepository.findById(id).get();
         return bank.isPaid();
+    }
+    public float calculateTotalSum(List<Bank> banks) {
+        float totalSum = 0;
+        for (Bank bank : banks) {
+            totalSum += bank.getSum();
+        }
+        return totalSum;
     }
 
     public BankDto saveBank(BankDto bankDto) {
@@ -57,17 +67,6 @@ public class BankService {
                 .fine(bank.getFine())
                 .receiptDate(bank.getReceiptDate())
                 .isPaid(bank.isPaid())
-                .build();
-    }
-
-    private Bank convertToEntity(BankDto bankDto) {
-        return Bank.builder()
-                .id(bankDto.getId())
-                .sum(bankDto.getSum())
-                .month(bankDto.getMonth())
-                .percent(bankDto.getPercent())
-                .fine(bankDto.getFine())
-                .receiptDate(bankDto.getReceiptDate())
                 .build();
     }
 }

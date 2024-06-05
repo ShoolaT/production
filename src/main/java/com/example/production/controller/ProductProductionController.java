@@ -3,12 +3,14 @@ package com.example.production.controller;
 import com.example.production.dto.EmployeeDto;
 import com.example.production.dto.FinishedProductDto;
 import com.example.production.dto.ProductProductionDto;
-import com.example.production.service.EmployeeService;
-import com.example.production.service.FinishedProductService;
-import com.example.production.service.ProductProductionService;
-import com.example.production.service.RawMaterialService;
+import com.example.production.model.ProductProduction;
+import com.example.production.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.ByteArrayInputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,7 +85,6 @@ public class ProductProductionController {
             productProductionService.saveProductProduction(productionDto);
             return "redirect:/productProductions/all";
         } else {
-            // Если не хватает сырья, перенаправляем обратно на страницу создания с сообщением об ошибке
             redirectAttributes.addAttribute("productId", productionDto.getProduct().getId());
             redirectAttributes.addAttribute("quantity", productionDto.getQuantity());
             redirectAttributes.addAttribute("date", productionDto.getDate());
@@ -90,14 +95,14 @@ public class ProductProductionController {
     }
 
     @GetMapping("/all")
-    public String getAllProductSales(Model model,
-                                     @RequestParam(name = "sort", defaultValue = "id") String sortCriteria) {
+    public String getAllProductProductions(Model model,
+                                           @RequestParam(name = "sort", defaultValue = "id") String sortCriteria) {
         List<EmployeeDto> employees = employeeService.getAllEmployees();
         List<FinishedProductDto> products = productService.getAllFinishedProducts();
 
         model.addAttribute("employees", employees);
         model.addAttribute("products", products);
-        List<ProductProductionDto> productions = productProductionService.getProductProduction(0, 30, sortCriteria).getContent();
+        List<ProductProduction> productions = productProductionService.getProductProduction(null, null);
 
         model.addAttribute("productions", productions);
 
@@ -108,4 +113,75 @@ public class ProductProductionController {
         model.addAttribute("roles", roles);
         return "productions/allProductProductions";
     }
+
+    @GetMapping("/all/report")
+    public String getProductionsToReport(Model model,
+                                         @RequestParam(name = "startDate", required = false) String startDate,
+                                         @RequestParam(name = "endDate", required = false) String endDate) {
+        List<ProductProduction> productions = null;
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        if (startDate != null && endDate != null) {
+            try {
+                Date start = formatter.parse(startDate);
+                Date end = formatter.parse(endDate);
+                productions = productProductionService.getProductProduction(start, end);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            model.addAttribute("startD", startDate);
+            model.addAttribute("endD", endDate);
+            model.addAttribute("total", productProductionService.calculateTotalQuantity(productions));
+        }
+
+        model.addAttribute("productions", productions);
+
+        return "report/productProductions";
+    }
+
+
+    @GetMapping("/all/print")
+    public ResponseEntity<byte[]> printReport(@RequestParam(name = "startDate", required = false) String startDate,
+                                              @RequestParam(name = "endDate", required = false) String endDate) {
+        List<ProductProduction> productions;
+        Date start = null, end = null;
+        if (startDate == null || endDate == null) {
+            productions = null;
+        } else {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                start = formatter.parse(startDate);
+                end = formatter.parse(endDate);
+                productions = productProductionService.getProductProduction(start, end);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+
+        String user = employeeService.getEmployeeDetailsByEmail(userDetails.getUsername());
+
+        String[] details = user.split(",");
+
+        Float total= null;
+        if(productions != null) {
+            total = (float) productProductionService.calculateTotalQuantity(productions);
+        }
+
+        ByteArrayInputStream bis = ExportPdf.productProductionReport(productions, details, start, end, total);
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "product_production_report.pdf");
+
+        byte[] bytes = new byte[0];
+        bytes = new byte[bis.available()];
+        bis.read(bytes, 0, bis.available());
+
+        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+    }
+
+
 }

@@ -2,7 +2,7 @@
 
 <@main.layout>
     <h2>All Product Sales</h2>
-
+    <a href="/productSales/all/report" class="mt-2 btn btn-outline-success">Report Product Sales</a>
     <div class="mt-3">
         <p class="fs-3 text-success">Budget: ${budget} Percent: ${budgetPercent}%</p>
         <table class="table">
@@ -24,10 +24,6 @@
                     <td>${sale.amount}</td>
                     <td>${sale.date?string("yyyy-MM-dd")}</td>
                     <td>${sale.employee.fullName}</td>
-                    <#--                    <td>-->
-                    <#--&lt;#&ndash;                        <a href="/productSales/edit/${sale.id}" class="btn btn-outline-warning mx-2">Edit</a>&ndash;&gt;-->
-                    <#--                        <button class="btn btn-outline-danger" onclick="confirmDelete(${sale.id})">Delete</button>-->
-                    <#--                    </td>-->
                 </tr>
             </#list>
             </tbody>

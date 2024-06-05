@@ -2,11 +2,14 @@ package com.example.production.controller;
 
 import com.example.production.dto.BankDto;
 import com.example.production.dto.PaymentHistoryDto;
-import com.example.production.service.BankService;
-import com.example.production.service.BudgetService;
-import com.example.production.service.PaymentHistoryService;
+import com.example.production.model.Bank;
+import com.example.production.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +18,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -33,7 +37,7 @@ public class BankController {
     private final BankService bankService;
     private final PaymentHistoryService paymentHistoryService;
     private final BudgetService budgetService;
-
+    private final EmployeeService employeeService;
     @GetMapping("/create")
     public String createBank() {
         return "banks/createBank";
@@ -47,7 +51,7 @@ public class BankController {
 
     @GetMapping("/all")
     public String getAllBanks(Model model) {
-        List<BankDto> banks = bankService.getBanks();
+        List<Bank> banks = bankService.getBanks(null, null);
         model.addAttribute("banks", banks);
         model.addAttribute("budget", formatter(budgetService.getBudget()));
 
@@ -128,6 +132,72 @@ public class BankController {
         DecimalFormat df = new DecimalFormat("#0.00", symbols);
 
         return df.format(num);
+    }
+    @GetMapping("/all/report")
+    public String getBanksToReport(Model model,
+                                         @RequestParam(name = "startDate", required = false) String startDate,
+                                         @RequestParam(name = "endDate", required = false) String endDate) {
+        List<Bank> banks = null;
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        if (startDate != null && endDate != null) {
+            try {
+                Date start = formatter.parse(startDate);
+                Date end = formatter.parse(endDate);
+                banks = bankService.getBanks(start, end);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            model.addAttribute("startD", startDate);
+            model.addAttribute("endD", endDate);
+            model.addAttribute("total", bankService.calculateTotalSum(banks));
+        }
+
+        model.addAttribute("banks", banks);
+
+        return "report/banks";
+    }
+
+
+    @GetMapping("/all/print")
+    public ResponseEntity<byte[]> printReport(@RequestParam(name = "startDate", required = false) String startDate,
+                                              @RequestParam(name = "endDate", required = false) String endDate) {
+        List<Bank> banks;
+        Date start = null, end = null;
+        if (startDate == null || endDate == null) {
+            banks = null;
+        } else {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                start = formatter.parse(startDate);
+                end = formatter.parse(endDate);
+                banks = bankService.getBanks(start, end);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+
+        String user = employeeService.getEmployeeDetailsByEmail(userDetails.getUsername());
+
+        String[] detailsArray = user.split(",");
+
+        Float total= null;
+        if(banks != null) {
+            total = (float) bankService.calculateTotalSum(banks);
+        }
+        ByteArrayInputStream bis = ExportPdf.banksReport(banks, detailsArray, start, end, total);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "bank_report.pdf");
+
+        byte[] bytes = new byte[0];
+        bytes = new byte[bis.available()];
+        bis.read(bytes, 0, bis.available());
+
+        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
     }
 
 }

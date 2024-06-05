@@ -2,6 +2,7 @@
 
 <@main.layout>
     <h2>Material Purchase List</h2>
+    <a href="/materialPurchases/all/report" class="mt-2 btn btn-outline-success">Report Material Purchases</a>
 
     <div class="mt-3">
         <p class="fs-3 text-success">Budget: ${budget}</p>

@@ -2,6 +2,7 @@
 
 <@main.layout>
     <h2>Salary List</h2>
+    <a href="/salaries/all/report" class="mt-2 btn btn-outline-success">Report Salaries</a>
 
     <form id="salaryForm" action="/salaries/all" method="post">
         <label for="year">Year:</label>

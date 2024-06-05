@@ -24,6 +24,18 @@ public class SalaryService {
 
         return salaries;
     }
+    @Transactional
+    public List<Salary> getSalariesByDate(String startDate, String endDate) {
+
+        int startYear = Integer.parseInt(startDate.substring(0, 4));
+        int startMonth = Integer.parseInt(startDate.substring(5, 7));
+
+        int endYear = Integer.parseInt(endDate.substring(0, 4));
+        int endMonth = Integer.parseInt(endDate.substring(5, 7));
+        System.out.println(startYear + " " + startMonth + "   "+ endYear + "  "+ endMonth);
+
+        return salaryRepository.getSalariesByDate(startYear, startMonth, endYear, endMonth);
+    }
     public void updateSalary(Long id, float general) {
         boolean existingSalary = salaryRepository.existsById(id);
         if (!existingSalary) {
@@ -37,5 +49,13 @@ public class SalaryService {
     public float getTotalSalaryForMonth(int year, int month) {
         return salaryRepository.calculateTotalSalary(year, month);
     }
+    public float calculateTotalGeneral(List<Salary> salaries) {
+        float totalGeneral = 0;
+        for (Salary salary : salaries) {
+            totalGeneral += salary.getGeneral();
+        }
+        return totalGeneral;
+    }
+
 
 }

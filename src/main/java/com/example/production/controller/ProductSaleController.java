@@ -3,13 +3,13 @@ package com.example.production.controller;
 import com.example.production.dto.EmployeeDto;
 import com.example.production.dto.FinishedProductDto;
 import com.example.production.dto.ProductSaleDto;
-import com.example.production.service.BudgetService;
-import com.example.production.service.EmployeeService;
-import com.example.production.service.FinishedProductService;
-import com.example.production.service.ProductSaleService;
+import com.example.production.model.ProductSale;
+import com.example.production.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,8 +19,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.ByteArrayInputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -122,7 +126,7 @@ public class ProductSaleController {
 
         model.addAttribute("employees", employees);
         model.addAttribute("products", products);
-        List<ProductSaleDto> productSales = productSaleService.getProductSales(0, 9, sortCriteria).getContent();
+        List<ProductSale> productSales = productSaleService.getProductSales(null, null);
 
         model.addAttribute("productSales", productSales);
 
@@ -169,6 +173,76 @@ public class ProductSaleController {
     public String confirmDelete(@PathVariable Long id) {
         productSaleService.deleteProductSale(id);
         return "redirect:/productSales/all";
+    }
+    @GetMapping("/all/report")
+    public String getSalesToReport(Model model,
+                                         @RequestParam(name = "startDate", required = false) String startDate,
+                                         @RequestParam(name = "endDate", required = false) String endDate) {
+        List<ProductSale> productSales = null; // Устанавливаем значение по умолчанию
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        if (startDate != null && endDate != null) {
+            try {
+                Date start = formatter.parse(startDate);
+                Date end = formatter.parse(endDate);
+                productSales = productSaleService.getProductSales(start, end);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            model.addAttribute("startD", startDate);
+            model.addAttribute("endD", endDate);
+            model.addAttribute("totalQuantity", productSaleService.calculateTotalQuantity(productSales));
+            model.addAttribute("totalAmount", productSaleService.calculateTotalAmount(productSales));
+        }
+
+        model.addAttribute("productSales", productSales);
+
+        return "report/productSales";
+    }
+
+
+    @GetMapping("/all/print")
+    public ResponseEntity<byte[]> printReport(@RequestParam(name = "startDate", required = false) String startDate,
+                                              @RequestParam(name = "endDate", required = false) String endDate) {
+        List<ProductSale> productSales;
+        Date start = null, end = null;
+        if (startDate == null || endDate == null) {
+            productSales = null;
+        } else {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                start = formatter.parse(startDate);
+                end = formatter.parse(endDate);
+                productSales = productSaleService.getProductSales(start, end);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails = (UserDetails) principal;
+
+        String user = employeeService.getEmployeeDetailsByEmail(userDetails.getUsername());
+
+        String[] details = user.split(",");
+
+        Float totalQuantity = null;
+        Float totalAmount = null;
+        if(productSales != null) {
+            totalQuantity = (float) productSaleService.calculateTotalQuantity(productSales);
+            totalAmount = (float) productSaleService.calculateTotalAmount(productSales);
+        }
+        ByteArrayInputStream bis = ExportPdf.productSaleReport(productSales, details, start, end, totalQuantity, totalAmount);
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("filename", "product_sales_report.pdf");
+
+        byte[] bytes = new byte[0];
+        bytes = new byte[bis.available()];
+        bis.read(bytes, 0, bis.available());
+
+        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
     }
 
 

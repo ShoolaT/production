@@ -9,14 +9,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 @Repository
 public interface ProductProductionRepository extends JpaRepository<ProductProduction, Long> {
-    int countByEmployeeAndDateBetween(Employee employee, Date startDate, Date endDate);
-
-    @Query("SELECT COUNT(pp) FROM ProductProduction pp WHERE pp.employee = :employee AND YEAR(pp.date) = :year AND MONTH(pp.date) = :month")
-    int countByEmployeeAndYearAndMonth(@Param("employee") Employee employee, @Param("year") int year, @Param("month") int month);;
-    @Procedure(procedureName = "AfterProductionProcedure")
+     @Procedure(procedureName = "AfterProductionProcedure")
     void afterProductionProcedure(@Param("productId")Long product, @Param("Quantity")float quantity);
-
+    @Procedure(procedureName = "GetProductionsByDate")
+    List<ProductProduction> getProductionsByDate(
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate
+    );
 }

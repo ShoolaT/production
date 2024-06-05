@@ -136,6 +136,12 @@ public EmployeeDto updateEmployee(EmployeeDto employeeDto) {
         employeeRepository.deleteById(id);
     }
 
+    public String getEmployeeByEmail(String email){
+       return employeeRepository.getFullNameByEmail(email);
+    }
+    public String getEmployeeDetailsByEmail(String email){
+        return employeeRepository.getEmployeeDetailsByEmail(email);
+    }
     public EmployeeDto convertToDto(Employee employee) {
         var position = positionService.getPositionById(employee.getPosition().getId());
         return EmployeeDto.builder()
